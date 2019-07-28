@@ -1,9 +1,9 @@
 @Square-Advanced
---track0:Xサイズ,-4000,4000,100
---track1:Yサイズ,-4000,4000,100
+--track0:高さ,-4000,4000,100
+--track1:幅,-4000,4000,100
 --track2:破線の位相,-1000,1000,0
 
---dialog:色/col,color="0xfffffff";左右寄せ[0-2],alignSideMode=1;上下寄せ[0-2],alignUpMode=1;破線の角度,spaceDeg=0;縦破線/chk,spaceVertical=0;破線のサイズ,spaceSize=0;破線の間隔,space=0;
+--dialog:色/col,color="0xfffffff";左右寄せ[0-2],alignSideMode=1;上下寄せ[0-2],alignUpMode=1;縦破線/chk,spaceVertical=0;破線のサイズ,spaceSize=0;破線の間隔,space=0;
 
 --------------------------------------------------------------
 -- 変数
@@ -89,113 +89,26 @@ if (spaceSize * space) == 0 then --Line
 
 
 else
-	if spaceDeg < 0 then
-		spaceDeg = -spaceDeg + 90
-	end
-	if spaceDeg >= 360 then
-		spaceDeg = spaceDeg - ( 360 * math.floor(spaceDeg / 360) )
-	end
-	if (spaceDeg > 180 and spaceDeg < 360) then
-		spaceDeg = spaceDeg - 180
-	end
-
 	if spaceVertical == 0 then
-		if (spaceDeg == 0) or (spaceDeg == 180) then
-			local i = - (spaceSize + space) + (spaceMove % (spaceSize + space)) - width
-			while i <= width do
-				local ax = i
-				local bx = ax + spaceSize
+		local i	= - (spaceSize + space) + (spaceMove % (spaceSize + space)) - width
+		while i <= width do
+			local ax = i
+			local bx = ax + spaceSize
 
-				obj.drawpoly(ax,-height,0,bx,-height,0,bx,height,0,ax,height, 0)
+			obj.drawpoly(ax,-height,0,bx,-height,0,bx,height,0,ax,height, 0)
 
-				i = ax + spaceSize + space
-			end
-
-		elseif (spaceDeg > 0) and (spaceDeg < 90) then
-			local adjustPos = (height * 2) / math.tan( math.rad(90 - spaceDeg) )
-			local i	= - (spaceSize + space) + (spaceMove % (spaceSize + space)) - width
-			i	= i - (math.floor(adjustPos / spaceSize + space) + 1) *(spaceSize + space)
-			while i <= width do
-				local ax = i
-				local bx = ax + spaceSize
-
-				obj.drawpoly(ax + adjustPos,-height,0  ,bx + adjustPos,-height,0,  bx,height,0  ,ax,height, 0)
-
-				i = ax + spaceSize + space
-			end
-
-		elseif (spaceDeg > 90) and (spaceDeg < 180) then
-			local adjustPos = (height * 2) / math.tan( math.rad(90 - spaceDeg) )
-			local i	= - (spaceSize + space) + (spaceMove % (spaceSize + space)) - width
-			while i <= width - adjustPos do
-				local ax = i
-				local bx = ax + spaceSize
-
-				obj.drawpoly(ax + adjustPos,-height,0  ,bx + adjustPos,-height,0,  bx,height,0  ,ax,height, 0)
-
-				i = ax + spaceSize + space
-			end
-
-		elseif (spaceDeg == 90) or (spaceDeg == 270) then
-			local i	= - (spaceSize + space) + (spaceMove % (spaceSize + space)) - height
-			while i <= height do
-				local ay = i
-				local by = ay + spaceSize
-
-				obj.drawpoly(-width,ay,0,width,ay,0,width,by,0,-width,by, 0)
-
-				i = ay + spaceSize + space
-			end
+			i = ax + spaceSize + space
 		end
 
+	elseif spaceVertical == 1 then
+		local i	= - (spaceSize + space) + (spaceMove % (spaceSize + space)) - height
+		while i <= height do
+			local ay = i
+			local by = ay + spaceSize
 
-	elseif spaceVertical==1 then
-		if (spaceDeg == 0) or (spaceDeg == 180) then
-			local i	= - (spaceSize + space) + (spaceMove % (spaceSize + space)) - height
-			while i <= height do
-				local ay = i
-				local by = ay + spaceSize
+			obj.drawpoly(-width,ay,0,width,ay,0,width,by,0,-width,by, 0)
 
-				obj.drawpoly(-width,ay,0,width,ay,0,width,by,0,-width,by, 0)
-
-				i = ay + spaceSize + space
-			end
-
-		elseif (spaceDeg > 0) and (spaceDeg < 90) then
-			local adjustPos = (width * 2) / math.tan( math.rad(90 - spaceDeg) )
-			local i	= - (spaceSize + space) + (spaceMove % (spaceSize + space)) - height
-			i	= i - (math.floor(adjustPos / spaceSize + space) + 1) *(spaceSize + space)
-			while i <= height do
-				local ay = i
-				local by = ay + spaceSize
-
-				obj.drawpoly(-width,ay,0,width,ay + adjustPos,0,width,by + adjustPos,0,-width,by, 0)
-
-				i = ay + spaceSize + space
-			end
-
-		elseif (spaceDeg > 90) and (spaceDeg < 180) then
-			local adjustPos = (width * 2) / math.tan( math.rad(90 - spaceDeg) )
-			local i	= - (spaceSize + space) + (spaceMove % (spaceSize + space)) - height
-			while i <= height - adjustPos do
-				local ay = i
-				local by = ay + spaceSize
-
-				obj.drawpoly(-width,ay,0,width,ay + adjustPos,0,width,by + adjustPos,0,-width,by, 0)
-
-				i = ay + spaceSize + space
-			end
-
-		elseif (spaceDeg == 90) or (spaceDeg == 270) then
-			local i = - (spaceSize + space) + (spaceMove % (spaceSize + space)) - width
-			while i <= width do
-				local ax = i
-				local bx = ax + spaceSize
-
-				obj.drawpoly(ax,-height,0,bx,-height,0,bx,height,0,ax,height, 0)
-
-				i = ax + spaceSize + space
-			end
+			i = ay + spaceSize + space
 		end
 	end
 end
