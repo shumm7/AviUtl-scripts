@@ -1,9 +1,10 @@
 @Square-Advanced
---track0:Xサイズ,-4000,4000,100
---track1:Yサイズ,-4000,4000,100
+--track0:幅,-4000,4000,100
+--track1:高さ,-4000,4000,100
 --track2:破線の位相,-1000,1000,0
+--track3:破線の角度,-1080,1080,0
 
---dialog:色/col,color="0xfffffff";左右寄せ[0-2],alignSideMode=1;上下寄せ[0-2],alignUpMode=1;破線の角度,spaceDeg=0;縦破線/chk,spaceVertical=0;破線のサイズ,spaceSize=0;破線の間隔,space=0;
+--dialog:色/col,color="0xfffffff";左右寄せ[0-2],alignSideMode=1;上下寄せ[0-2],alignUpMode=1;縦破線/chk,spaceVertical=0;破線のサイズ,spaceSize=0;破線の間隔,space=0;
 
 --------------------------------------------------------------
 -- 変数
@@ -11,6 +12,7 @@
 local sizeX = obj.track0
 local sizeY = obj.track1
 local spaceMove = obj.track2
+local spaceDeg = obj.track3
 local flagOpposX = 0
 local flagOpposY = 0
 local width = sizeX / 2
