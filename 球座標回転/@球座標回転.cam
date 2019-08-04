@@ -2,6 +2,7 @@
 --track0:…•½‰ñ“],-1080,1080,0,0.1
 --track1:‚’¼‰ñ“],-1080,1080,0,0.1
 --check0:‚’¼‰ñ“]‚É‰æ–Ê‚ğ”½“],1
+
 --------------------------------------------------------------
 -- ŠÖ”
 --------------------------------------------------------------
@@ -99,7 +100,7 @@ rx = getAngle(rx + trx)
 ry = getAngle(ry + try)
 tx, ty, tz = getTarget(cx, cy, cz, l, rx, ry)
 
-if rotateScreen==true and ry>=90 and ry<270 then
+if rotateScreen==true and (ry>=90 and ry<270) then
 	cr = cr + 180
 end
 
@@ -107,4 +108,5 @@ cam.tx = tx
 cam.ty = ty
 cam.tz = tz
 cam.rz = cr
+
 obj.setoption("camera_param", cam)
