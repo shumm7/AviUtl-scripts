@@ -1,0 +1,110 @@
+@球座標回転
+--track0:水平回転,-1080,1080,0,0.1
+--track1:垂直回転,-1080,1080,0,0.1
+--check0:垂直回転時に画面を反転,1
+--------------------------------------------------------------
+-- 関数
+--------------------------------------------------------------
+--度数法の角度を 0 <= r < 360 の範囲内に変換する
+function getAngle(deg)
+	if deg >= 360 then
+		deg = deg - ( 360 * math.floor(deg / 360) )
+	elseif deg <= -360 then
+		deg = deg + ( 360 * math.floor(-deg / 360))
+	end
+
+	if deg < 0 then
+		deg = 360 + deg
+	end
+
+	return deg
+end
+
+--2乗した値を返す
+function pow(num)
+	return num*num
+end
+
+--座標、目標座標から極座標表示の値を得る
+function getVector(cx, cy, cz, tx, ty, tz)
+	local x = tx - cx
+	local y = ty - cy
+	local z = tz - cz
+	local l = math.sqrt(pow(y) + pow(x) + pow(z))
+
+	local rx, ry
+	if z>0 and x>=0 then --0<=rx<90
+		rx = math.deg(math.atan(x/z))
+	elseif z<=0 and x>0 then --90<=rx<180
+		rx = 90 - math.deg(math.atan(z/x))
+	elseif z<0 and x<=0 then --180<=rx<270
+		rx = 180 + math.deg(math.atan(x/z))
+	elseif z>=0 and x<0 then --270<=rx<360
+		rx = 270 - math.deg(math.atan(z/x))
+	elseif z==0 and x==0 then
+		rx = 0
+	end
+
+	if z>0 and y>=0 then --0<=ry<90
+		ry = math.deg(math.atan(y/z))
+	elseif z<=0 and y>0 then --90<=ry<180
+		ry = 90 - math.deg(math.atan(z/y))
+	elseif z<0 and y<=0 then --180<=ry<270
+		ry = 180 + math.deg(math.atan(y/z))
+	elseif z>=0 and y<0 then --270<=ry<360
+		ry = 270 - math.deg(math.atan(z/y))
+	elseif z==0 and y==0 then
+		ry = 0
+	end
+
+	return l, rx, ry
+end
+
+function getTarget(cx, cy, cz, l, rx, ry)
+	local x = l * math.sin(math.rad(rx)) * math.cos(math.rad(ry))
+	local y = l * math.cos(math.rad(90 - ry))
+	local z = l * math.cos(math.rad(rx)) * math.cos(math.rad(ry))
+
+	local ty = y + cy
+	local tx = x + cx
+	local tz = z + cz
+
+	return tx, ty, tz
+end
+
+--------------------------------------------------------------
+-- 変数
+--------------------------------------------------------------
+cam = obj.getoption("camera_param")
+--目標座標
+tx = cam.tx
+ty = cam.ty
+tz = cam.tz
+--座標
+cx = cam.x
+cy = cam.y
+cz = cam.z
+--角度
+trx = getAngle(obj.track0) --カメラ水平回転
+try = getAngle(obj.track1) --カメラ垂直回転
+--傾き
+cr = cam.rz
+rotateScreen = obj.check0
+
+--------------------------------------------------------------
+-- カメラ座標
+--------------------------------------------------------------
+l, rx, ry = getVector(cx, cy, cz, tx, ty, tz) --現在のカメラの極座標
+rx = getAngle(rx + trx)
+ry = getAngle(ry + try)
+tx, ty, tz = getTarget(cx, cy, cz, l, rx, ry)
+
+if rotateScreen==true and ry>=90 and ry<270 then
+	cr = cr + 180
+end
+
+cam.tx = tx
+cam.ty = ty
+cam.tz = tz
+cam.rz = cr
+obj.setoption("camera_param", cam)

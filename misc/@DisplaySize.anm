@@ -1,0 +1,6 @@
+@DisplaySize
+--track0:Œ»İ»²½Ş,16,7680,720,1
+--track1:Šg‘åŒã»²½Ş,16,7680,720,1
+--track2:”÷’²®,-100,100,0,0.01
+local rate = obj.track1 / obj.track0
+obj.zoom = obj.zoom + (rate - 1) + (obj.track2 / 100)
