@@ -4,7 +4,7 @@
 --track2:分解能,0.01,50,5,0.01
 --track3:数値A,-1000,1000,100,0.1
 --check0:情報,0
---dialog:色/col,local color="0xfffffff";フォント,local font="メイリオ";関数番号,local mathfunc=1;分解能閾値,local threshold=1;X関数 fx,local fx_s="A * cos(r)";Y関数 fy,local fy_s="A * sin(r)";Z関数 fz,local fz_s="0";数値B,B=100;数値C,C=100;数値D,D=100;数値E,E=100;
+--dialog:フォント,local font="メイリオ";関数番号,local mathfunc=1;分解能閾値,local threshold=1;X関数 fx,local fx_s="A * cos(r)";Y関数 fy,local fy_s="A * sin(r)";Z関数 fz,local fz_s="0";数値B,B=100;数値C,C=100;数値D,D=100;数値E,E=100;
 
 --------------------------------------------------------------
 -- ユーザー定義関数（自由に追加可能）
@@ -121,7 +121,7 @@ if info == true then
 		obj.draw(0, 0, 0)
 	end
 
-	obj.setfont(font, 40, 0, color)
+	obj.setfont(font, 40, 0, "0xfffffff")
 	obj.load("text", "関数名: "..funcinfo['name'].."\n式: x = "..funcinfo['formulaX'].."\n式: y = "..funcinfo['formulaY'].."\n式: z = "..funcinfo['formulaZ'])
 	obj.draw()
 
