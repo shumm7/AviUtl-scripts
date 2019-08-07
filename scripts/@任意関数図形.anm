@@ -1,0 +1,81 @@
+@任意関数図形
+--track0:X最大値,-5000,5000,100,0.01
+--track1:X最小値,-5000,5000,-100,0.01
+--track2:分解能,0.01,50,5,0.01
+--track3:閾値,0,10,1,0.01
+--dialog:分解能閾値,local threshold=1;f(x),fx="2 * x";
+
+--------------------------------------------------------------
+-- ユーザー定義関数（自由に追加可能）
+--------------------------------------------------------------
+--三角関数
+function sin(x) return math.sin(x) end
+function cos(x) return math.cos(x) end
+function tan(x) return math.tan(x) end
+--逆三角関数
+function arcsin(x) return math.asin(x) end
+function arccos(x) return math.acos(x) end
+function arctan(x) return math.atan(x) end
+function arctan2(x) return math.atan2(x) end
+function asin(x) return math.asin(x) end
+function acos(x) return math.acos(x) end
+function atan(x) return math.atan(x) end
+function atan2(x) return math.atan2(x) end
+--双曲線関数
+function sinh(x) return math.sinh(x) end
+function cosh(x) return math.cosh(x) end
+function tanh(x) return math.tanh(x) end
+--角度変換
+function rad(x) return math.rad(x) end
+function deg(x) return math.deg(x) end
+--値操作
+function ceil(x) return math.ceil(x) end
+function floor(x) return math.floor(x) end
+function abs(x) return math.abs(x) end
+--指数・対数関数
+function exp(x) return math.exp(x) end
+function log(x, ...) return math.log(x, ...) end
+function pow(x, y) return math.pow(x, y) end
+function sqrt(x, y) return math.sqrt(x) end
+--最大最小
+function max(x, ...) return math.max(x, ...) end
+function min(x, ...) return math.min(x, ...) end
+--あまり
+function fmod(x, y) return math.fmod(x, y) end
+--乱数
+function random(x, y) return math.random(x, y) end
+function randomseed(x) return math.randomseed(x) end
+--定数
+pi = math.pi
+e = exp(1)
+inf = math.huge
+
+--------------------------------------------------------------
+-- 変数
+--------------------------------------------------------------
+local Xmax = obj.track0
+local Xmin = obj.track1
+local resolution = obj.track2
+local threshold = obj.track3
+resolution = resolution * threshold
+
+if Xmax < Xmin then
+	local temp
+	temp = Xmax
+	Xmax = Xmin
+	Xmin = temp
+end
+
+--------------------------------------------------------------
+-- 描画
+--------------------------------------------------------------
+obj.effect()
+local ox, oy
+
+for i=Xmin, Xmax, resolution do
+	x = i
+	func = loadstring("y="..fx)
+	func()
+	debug_print(tostring(x)..", "..tostring(y))
+	obj.draw(x, y)
+end

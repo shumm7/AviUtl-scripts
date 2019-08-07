@@ -1,0 +1,212 @@
+@媒介変数図形
+--track0:角度,0,7200,360,0.01
+--track1:位相,-3600,3600,0,0.01
+--track2:分解能,0.01,50,5,0.01
+--track3:数値A,-1000,1000,100,0.1
+--check0:情報,0
+--dialog:色/col,local color="0xfffffff";フォント,local font="メイリオ";関数番号,local mathfunc=1;分解能閾値,local threshold=1;X関数 fx,local fx_s="A * cos(r)";Y関数 fy,local fy_s="A * sin(r)";Z関数 fz,local fz_s="0";数値B,B=100;数値C,C=100;数値D,D=100;数値E,E=100;
+
+--------------------------------------------------------------
+-- ユーザー定義関数（自由に追加可能）
+--------------------------------------------------------------
+--三角関数
+function sin(x) return math.sin(x) end
+function cos(x) return math.cos(x) end
+function tan(x) return math.tan(x) end
+--逆三角関数
+function arcsin(x) return math.asin(x) end
+function arccos(x) return math.acos(x) end
+function arctan(x) return math.atan(x) end
+function arctan2(x) return math.atan2(x) end
+function asin(x) return math.asin(x) end
+function acos(x) return math.acos(x) end
+function atan(x) return math.atan(x) end
+function atan2(x) return math.atan2(x) end
+--双曲線関数
+function sinh(x) return math.sinh(x) end
+function cosh(x) return math.cosh(x) end
+function tanh(x) return math.tanh(x) end
+--角度変換
+function rad(x) return math.rad(x) end
+function deg(x) return math.deg(x) end
+--値操作
+function ceil(x) return math.ceil(x) end
+function floor(x) return math.floor(x) end
+function abs(x) return math.abs(x) end
+--指数・対数関数
+function exp(x) return math.exp(x) end
+function log(x, ...) return math.log(x, ...) end
+function pow(x, y) return math.pow(x, y) end
+function sqrt(x, y) return math.sqrt(x) end
+--最大最小
+function max(x, ...) return math.max(x, ...) end
+function min(x, ...) return math.min(x, ...) end
+--あまり
+function fmod(x, y) return math.fmod(x, y) end
+--乱数
+function random(x, y) return math.random(x, y) end
+function randomseed(x) return math.randomseed(x) end
+--定数
+pi = math.pi
+e = exp(1)
+inf = math.huge
+
+--------------------------------------------------------------
+-- 変数
+--------------------------------------------------------------
+local angle = obj.track0
+local phase = obj.track1
+local resolution = obj.track2
+local info = obj.check0
+
+local funcinfo = {}
+
+resolution = resolution * threshold
+
+A = obj.track3
+
+--------------------------------------------------------------
+-- 描画
+--------------------------------------------------------------
+if info == true then
+	if mathfunc == 0 then
+		funcinfo['name'] = "ユーザー定義関数"
+		funcinfo['formulaX'] = fx_s
+		funcinfo['formulaY'] = fy_s
+		funcinfo['formulaZ'] = fz_s
+
+	elseif mathfunc == 1 then
+		funcinfo['name'] = "円（螺旋）"
+		funcinfo['formulaX'] = "A * cos(r)"
+		funcinfo['formulaY'] = "A * sin(r)"
+		funcinfo['formulaZ'] = "B * r"
+
+	elseif mathfunc == 2 then
+		funcinfo['name'] = "サイクロイド"
+		funcinfo['formulaX'] = "A * ( r - sin(r) )"
+		funcinfo['formulaY'] = "A * ( 1 - cos(r) )"
+		funcinfo['formulaZ'] = "0"
+
+	elseif mathfunc == 3 then
+		funcinfo['name'] = "アステロイド"
+		funcinfo['formulaX'] = "A * pow(cos(r), 3)"
+		funcinfo['formulaY'] = "A * pow(sin(r), 3)"
+		funcinfo['formulaZ'] = "0"
+
+	elseif mathfunc == 4 then
+		funcinfo['name'] = "カージオイド"
+		funcinfo['formulaX'] = "A * (1 + cos(r)) * cos(r)"
+		funcinfo['formulaY'] = "A * (1 + cos(r)) * sin(r)"
+		funcinfo['formulaZ'] = "0"
+
+	elseif mathfunc == 5 then
+		funcinfo['name'] = "対数螺旋"
+		funcinfo['formulaX'] = "A * exp(B * r) * cos(r)"
+		funcinfo['formulaY'] = "A * exp(B * r) * sin(r)"
+		funcinfo['formulaZ'] = "C * r"
+
+	elseif mathfunc == 6 then
+		funcinfo['name'] = "レムニスケート"
+		funcinfo['formulaX'] = "A * cos(r)"
+		funcinfo['formulaY'] = "B * sin(2 * r)"
+		funcinfo['formulaZ'] = "0"
+
+	elseif mathfunc == 7 then
+		funcinfo['name'] = "インボリュート"
+		funcinfo['formulaX'] = "A * (cos(r) + r*sin(r))"
+		funcinfo['formulaY'] = "A * (sin(r) - r*cos(r))"
+		funcinfo['formulaZ'] = "B * r"
+
+	else
+		obj.draw(0, 0, 0)
+	end
+
+	obj.setfont(font, 40, 0, color)
+	obj.load("text", "関数名: "..funcinfo['name'].."\n式: x = "..funcinfo['formulaX'].."\n式: y = "..funcinfo['formulaY'].."\n式: z = "..funcinfo['formulaZ'])
+	obj.draw()
+
+
+elseif info == false then
+	obj.effect()
+	local ox, oy
+
+	if mathfunc==0 then --ユーザー定義関数
+		for i=(0+phase), angle+phase, resolution do
+			r=math.rad(i)
+
+			userfunc_x = loadstring("fx = "..fx_s)
+			userfunc_y = loadstring("fy = "..fy_s)
+			userfunc_z = loadstring("fz = "..fz_s)
+			userfunc_x()
+			userfunc_y()
+			userfunc_z()
+
+			ox = fx
+			oy = fy
+			oz = fz
+			obj.draw(ox, oy, oz)
+		end
+
+	elseif mathfunc==1 then --円
+		for i=(0+phase), angle+phase, resolution do
+			r = math.rad(i)
+			ox = A * math.cos(r)
+			oy = A * math.sin(r)
+			oz = B * r
+			obj.draw(ox, oy, oz)
+		end
+
+	elseif mathfunc==2 then --サイクロイド
+		for i=(0+phase), angle+phase, resolution do
+			r = math.rad(i)
+			ox = A * (r - math.sin(r))
+			oy = A * (1 - math.cos(r))
+			obj.draw(ox, oy)
+		end
+
+	elseif mathfunc==3 then --アステロイド
+		for i=(0+phase), angle+phase, resolution do
+			r = math.rad(i)
+			ox = A * math.pow(math.cos(r), 3)
+			oy = A * math.pow(math.sin(r), 3)
+			obj.draw(ox, oy)
+		end
+
+	elseif mathfunc==4 then --カージオイド
+		for i=(0+phase), angle+phase, resolution do
+			r = math.rad(i)
+			ox = A * (1 + math.cos(r)) * math.cos(r)
+			oy = A * (1 + math.cos(r)) * math.sin(r)
+			obj.draw(ox, oy)
+		end
+
+	elseif mathfunc==5 then --対数螺旋
+		for i=(0+phase), angle+phase, resolution do
+			r = math.rad(i)
+			ox = A * math.exp(B * r) * math.cos(r)
+			oy = A * math.exp(B * r) * math.sin(r)
+			oz = C * r
+			obj.draw(ox, oy, oz)
+		end
+
+	elseif mathfunc==6 then --レムニスケート
+		for i=(0+phase), angle+phase, resolution do
+			r = math.rad(i)
+			ox = A * math.cos(r)
+			oy = B * math.sin(2 * r)
+			obj.draw(ox, oy)
+		end
+
+	elseif mathfunc==7 then --インボリュート
+		for i=(0+phase), angle+phase, resolution do
+			r = math.rad(i)
+			ox = A * (cos(r) + r*sin(r))
+			oy = A * (sin(r) - r*cos(r))
+			oz = B * r
+			obj.draw(ox, oy, oz)
+		end
+
+	else
+		obj.draw(0, 0, 0)
+	end
+end
