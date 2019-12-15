@@ -1,0 +1,77 @@
+@年月日カウンター
+--track0:初期値,-4383,4383,0,1
+--track1:速度,-1000,1000,0,1
+--track2:サイズ,1,256,34
+--track3:表示形式,0,10,1,1
+--check0:増減,0
+--dialog:色/col,local col1="0xfffffff";影・縁色/col,col2=0x000000;装飾タイプ,deco=0;フォント,local font="MS UI Gothic";基準年,local _year=2020;基準月,local _month=1;基準日,local _day=1;桁数統一/chk,local digit=1;年表示/chk,local year_format=0;零点変更,local absolute_addition=0;
+
+local function addTime(_y, _m, _d, _addition)
+	local d = {
+	 year = _y,
+	 month = _m,
+	 day = _d + _addition
+	}
+	local t = os.time(d)
+	result = os.date("*t", t)
+
+	return result["year"], result["month"], result["day"]
+end
+
+mode = math.floor(obj.track3)
+time = obj.track0+obj.time*obj.track1
+_year = math.floor(_year)
+_month = math.floor(_month)
+_day = math.floor(_day)
+
+if (obj.check0) then
+	time = time * -1
+end
+if(absolute_addition == 1) then
+	time = time+4383
+end
+
+_year, _month, _day = addTime(_year, _month, _day, time)
+
+
+if( digit == 0 ) then
+	year = string.format("%d",_year)
+	month = string.format("%d",_month)
+	day = string.format("%d",_day)
+else
+	year = string.format("%02d",_year)
+	month = string.format("%02d",_month)
+	day = string.format("%02d",_day)
+end
+
+if(year_format==1) then --YY
+	local len = string.len(year)
+	if (len - 2 > 0) then
+		year = string.sub(string.format("%02d",_year), len - 1)
+	end
+end
+
+if( mode == 0 ) then
+	str = string.format("%02d",time)
+elseif( mode == 1 ) then --YYYY/MM/DD
+	str = year.."/"..month.."/"..day
+elseif( mode == 2 ) then --YYYY年MM月DD日
+	str = year.."年"..month.."月"..day.."日"
+elseif( mode == 3 ) then --YYYY-MM-DD
+	str = year.."-"..month.."-"..day
+elseif( mode == 4 ) then --YYYYMMDD
+	str = year..month..day
+elseif( mode == 5 ) then --YYYY:MM:DD
+	str = year..":"..month..":"..day
+elseif( mode == 6 ) then --YYYY.MM.DD
+	str = year.."."..month.."."..day
+elseif( mode == 7 ) then --YYYY.MM.DD.
+	str = year.."."..month.."."..day.."."
+elseif( mode == 8 ) then --YYYY／MM／DD
+	str = year.."／"..month.."／"..day
+else
+	str = "EEEEEEEE"
+end
+
+obj.setfont(font,obj.track2,deco,col1,col2)
+obj.load('text',str)
