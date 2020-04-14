@@ -3,7 +3,7 @@
 --track1:YŒÂ”,1,1000,1,1
 --track2:ZŒÂ”,1,1000,1,1
 --track3:ŠÔŠu,-4000,4000,100,0.1
---dialog:X•‰•ûŒü/chk,modeNX=0;Y•‰•ûŒü/chk,modeNY=0;Z•‰•ûŒü/chk,modeNZ=0;XŠÔŠu(ÊŞ²Êß½),dx=0;YŠÔŠu(ÊŞ²Êß½),dy=0;ZŠÔŠu(ÊŞ²Êß½),dz=0;
+--dialog:X•‰•ûŒü/chk,modeNX=0;Y•‰•ûŒü/chk,modeNY=0;Z•‰•ûŒü/chk,modeNZ=0;XŠÔŠu(ÊŞ²Êß½),dx=0;YŠÔŠu(ÊŞ²Êß½),dy=0;ZŠÔŠu(ÊŞ²Êß½),dz=0;XµÌ¾¯Ä,offsetX=0;YµÌ¾¯Ä,offsetY=0;ZµÌ¾¯Ä,offsetZ=0;
 obj.effect()
 
 local d = obj.track3
@@ -29,21 +29,21 @@ if dz == 0 then
 end
 
 for axi=0,ax-1 do
-		x = ox + axi * dx
-		if modeNX==1 then
-			x = x * -1
+	x = ox + axi * dx
+	if modeNX==1 then
+		x = x * -1
+	end
+	for ayi=0,ay-1 do
+		y = oy + ayi * dy
+		if modeNY==1 then
+			y = y * -1
 		end
-		for ayi=0,ay-1 do
-			y = oy + ayi * dy
-			if modeNY==1 then
-				y = y * -1
+		for azi=0,az-1 do
+			z = oz + azi * dz
+			if modeNZ==1 then
+				z = z * -1
 			end
-			for azi=0,az-1 do
-				z = oz + azi * dz
-				if modeNZ==1 then
-					z = z * -1
-				end
-				obj.draw(x,y,z,1,1)
-			end
+			obj.draw(x + ayi * offsetX,y + axi * offsetY,z + math.sqrt((axi + 1) * (ayi+1)) * offsetZ,1,1)
 		end
+	end
 end
