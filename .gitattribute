@@ -1,0 +1,5 @@
+*.anm diff=sjis
+*.cam diff=sjis
+*.obj diff=sjis
+*.lua diff=sjis
+*.tra diff=sjis
