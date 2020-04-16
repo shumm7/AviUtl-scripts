@@ -1,0 +1,36 @@
+@RadialPosition
+--track0:É∆,-3600,3600,0,0.01
+--track1:d,-2000,2000,0
+--track2:z,-4000,4000,0
+--dialog:êÖïΩîzíu/chk,modeHorizontal=0;äpìxîΩì]/chk,modeInverse=0;
+
+
+function getTarget(cx, cy, cz, l, rx, ry)
+	local x = l * math.sin(math.rad(rx)) * math.cos(math.rad(ry))
+	local y = l * math.cos(math.rad(90 - ry))
+	local z = l * math.cos(math.rad(rx)) * math.cos(math.rad(ry))
+
+	local tx = x + cx
+	local ty = y + cy
+	local tz = z + cz
+
+	return tx, ty, tz
+end
+
+
+if modeInverse==1 then
+	rad = math.rad(360 - obj.track0)
+else
+	rad = math.rad(obj.track0)
+end
+
+if modeHorizontal==0 then
+	obj.ox = obj.ox + obj.track1 * math.cos(rad)
+	obj.oy = obj.oy + obj.track1 * math.sin(rad)
+	obj.oz = obj.oz + obj.track2
+elseif  modeHorizontal==1 then
+	tx, ty, tz = getTarget(0, 0, 0, obj.track1, obj.track0, 0)
+	obj.ox = obj.ox + tx
+	obj.oy = obj.oy + ty
+	obj.oz = obj.oz + tz + obj.track2
+end

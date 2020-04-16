@@ -1,0 +1,31 @@
+@SphericalRadialPosition
+--track0:…•½Šp,-3600,3600,0,0.01
+--track1:‚’¼Šp,-2000,2000,0
+--track2:‹——£,-4000,4000,0
+--dialog:Šp“x”½“]/chk,modeInverse=0;
+
+--todo:‰ñ“]Œ´“_‚ğŒü‚­ƒ‚[ƒh‚ğ‚Â‚¯‚é
+
+function getTarget(cx, cy, cz, l, rx, ry)
+	local x = l * math.sin(math.rad(rx)) * math.cos(math.rad(ry))
+	local y = l * math.cos(math.rad(90 - ry))
+	local z = l * math.cos(math.rad(rx)) * math.cos(math.rad(ry))
+
+	local tx = x + cx
+	local ty = y + cy
+	local tz = z + cz
+
+	return tx, ty, tz
+end
+
+
+if modeInverse==1 then
+	rad = math.rad(360 - obj.track0)
+else
+	rad = math.rad(obj.track0)
+end
+
+tx, ty, tz = getTarget(0, 0, 0, obj.track2, obj.track0, obj.track1)
+obj.ox = obj.ox + tx
+obj.oy = obj.oy + ty
+obj.oz = obj.oz + tz
