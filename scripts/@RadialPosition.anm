@@ -1,8 +1,8 @@
 @RadialPosition
---track0:角度,-3600,3600,0,0.01
---track1:距離,-2000,2000,0
+--track0:隗貞ｺｦ,-3600,3600,0,0.01
+--track1:霍晞屬,-2000,2000,0
 --track2:Z,-4000,4000,0
---dialog:水平配置/chk,modeHorizontal=0;角度反転/chk,modeInverse=0;
+--dialog:豌ｴ蟷ｳ驟咲ｽｮ/chk,modeHorizontal=0;隗貞ｺｦ蜿崎ｻ｢/chk,modeInverse=0;
 
 
 function getTarget(cx, cy, cz, l, rx, ry)
