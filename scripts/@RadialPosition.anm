@@ -1,8 +1,8 @@
 @RadialPosition
---track0:隗貞ｺｦ,-3600,3600,0,0.01
---track1:霍晞屬,-2000,2000,0
---track2:Z,-4000,4000,0
---dialog:豌ｴ蟷ｳ驟咲ｽｮ/chk,modeHorizontal=0;隗貞ｺｦ蜿崎ｻ｢/chk,modeInverse=0;
+--track0:θ,-3600,3600,0,0.01
+--track1:d,-2000,2000,0
+--track2:z,-4000,4000,0
+--dialog:水平配置/chk,modeHorizontal=0;角度反転/chk,modeInverse=0;回転原点を向く/chk,modeRotate=1;
 
 
 function getTarget(cx, cy, cz, l, rx, ry)
@@ -33,4 +33,12 @@ elseif  modeHorizontal==1 then
 	obj.ox = obj.ox + tx
 	obj.oy = obj.oy + ty
 	obj.oz = obj.oz + tz + obj.track2
+end
+
+if modeRotate==1 then
+	if modeHorizontal==0 then
+		obj.rz = obj.rz + obj.track0
+	elseif  modeHorizontal==1 then
+		obj.ry = obj.ry + obj.track0
+	end
 end
