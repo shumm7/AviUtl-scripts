@@ -1,3 +1,31 @@
+@Square-Lite
+--track0:ïù,-4000,4000,100
+--track1:çÇÇ≥,-4000,4000,100
+--dialog:êF/col,color="0xfffffff";
+
+local sizeX = obj.track0
+local sizeY = obj.track1
+local width = sizeX / 2
+local height = sizeY / 2
+
+if sizeX < 0 then
+	sizeX=(-sizeX)
+end
+if sizeY < 0 then
+	sizeY=(-sizeY)
+end
+
+if sizeX==0 or sizeY==0 then
+	return
+else
+	obj.setoption("drawtarget", "tempbuffer", sizeX, sizeY)
+	obj.load("figure", "éläpå`", color)
+end
+
+obj.drawpoly(-width,-height,0,width,-height,0,width,height,0,-width,height,0)
+obj.load("tempbuffer")
+
+
 @Square-Advanced
 --track0:ïù,-4000,4000,100
 --track1:çÇÇ≥,-4000,4000,100
