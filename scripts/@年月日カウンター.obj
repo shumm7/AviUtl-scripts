@@ -2,9 +2,9 @@
 --track0:初期値,-4383,4383,0,1
 --track1:速度,-1000,1000,0,1
 --track2:サイズ,1,256,34
---track3:表示形式,0,10,1,1
---check0:増減,0
---dialog:色/col,local col1="0xfffffff";影・縁色/col,col2=0x000000;装飾タイプ,deco=0;フォント,local font="MS UI Gothic";基準年,local _year=2020;基準月,local _month=1;基準日,local _day=1;桁数統一/chk,local digit=1;年表示/chk,local year_format=0;零点変更,local absolute_addition=0;
+--track3:表示形式,-1,10,1,1
+--check0:零点変更,0
+--dialog:色/col,local col1="0xfffffff";影・縁色/col,col2=0x000000;装飾タイプ,deco=0;フォント,local font="MS UI Gothic";基準年,local _year=2020;基準月,local _month=1;基準日,local _day=1;桁数統一/chk,local digit=1;年表示/chk,local year_format=0;増減反転/chk,local invert=0;カスタム 1,local charCustomFirst="a";カスタム 2,local charCustomSecond="b";
 
 local function addTime(_y, _m, _d, _addition)
 	local d = {
@@ -18,16 +18,18 @@ local function addTime(_y, _m, _d, _addition)
 	return result["year"], result["month"], result["day"]
 end
 
+absolute_addition=obj.check0
 mode = math.floor(obj.track3)
 time = obj.track0+obj.time*obj.track1
 _year = math.floor(_year)
 _month = math.floor(_month)
 _day = math.floor(_day)
 
-if (obj.check0) then
+if (invert==1) then
 	time = time * -1
 end
-if(absolute_addition == 1) then
+
+if(absolute_addition) then
 	time = time+4383
 end
 
@@ -51,8 +53,21 @@ if(year_format==1) then --YY
 	end
 end
 
-if( mode == 0 ) then
-	str = string.format("%02d",time)
+if ( mode == -1 ) then
+	if charCustomFirst~=nil then
+		str = year..charCustomFirst..month
+	else
+		str = year..month
+	end
+
+	if charCustomSecond~=nil then
+		str = str..charCustomSecond..day
+	else
+		str = str..day
+	end
+
+elseif( mode == 0 ) then
+	str = string.format("%01d",time)
 elseif( mode == 1 ) then --YYYY/MM/DD
 	str = year.."/"..month.."/"..day
 elseif( mode == 2 ) then --YYYY年MM月DD日
@@ -69,8 +84,10 @@ elseif( mode == 7 ) then --YYYY.MM.DD.
 	str = year.."."..month.."."..day.."."
 elseif( mode == 8 ) then --YYYY／MM／DD
 	str = year.."／"..month.."／"..day
-else
-	str = "EEEEEEEE"
+elseif( mode == 9 ) then --EEEEEEEE
+	str = "EEEEEEEE" --ご自由に変更してください。
+elseif( mode == 10 ) then --EEEEEEEE
+	str = "EEEEEEEE" --ご自由に変更してください。
 end
 
 obj.setfont(font,obj.track2,deco,col1,col2)
