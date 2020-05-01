@@ -20,6 +20,7 @@ local height = sizeY / 2
 local alignSide = 0
 local alignUp = 0
 local sc = obj.getvalue("zoom") / 100
+local r = math.rad(obj.rz)
 
 if alignUpMode==nil then
 	alignUpMode = 1
@@ -204,10 +205,175 @@ else
 end
 
 obj.load("tempbuffer")
+--------------------------------------------------------------
+-- 寄せ調整
+--------------------------------------------------------------
+if width>0 then
+	obj.ox = obj.ox + (s * math.cos(r)) * sc
+	obj.oy = obj.oy + (s * math.sin(r)) * sc
+else
+	obj.ox = obj.ox - (s * math.cos(r)) * sc
+	obj.oy = obj.oy - (s * math.sin(r)) * sc
+end
+
+if height>0 then
+	obj.ox = obj.ox + (u * math.sin(-r)) * sc
+	obj.oy = obj.oy + (u * math.cos(-r)) * sc
+else
+	obj.ox = obj.ox - (u * math.sin(-r)) * sc
+	obj.oy = obj.oy - (u * math.cos(-r)) * sc
+end
+
+
+
+@Square-Advanced-Edge
+--track0:幅,-4000,4000,100
+--track1:高さ,-4000,4000,100
+--track2:線幅,0,4000,4000
+--track3:線高さ,0,4000,4000
+
+--dialog:色/col,color="0xfffffff";左右寄せ[0-2],alignSideMode=1;上下寄せ[0-2],alignUpMode=1;常に線幅値を使用/chk,lineWidthSync=0;表示する辺,displaySide={1,2,3,4};
+
+local sizeX = obj.track0
+local sizeY = obj.track1
+local lineWidth = obj.track2
+local lineHeight = obj.track3
+local flagOpposX = 0
+local flagOpposY = 0
+local width = sizeX / 2
+local height = sizeY / 2
+local alignSide = 0
+local alignUp = 0
+local sc = obj.getvalue("zoom") / 100
 local r = math.rad(obj.rz)
 
-debug_print(sc)
---左右寄せ調整
+if alignUpMode==nil then
+	alignUpMode = 1
+end
+if alignSideMode==nil then
+	alignSideMode = 1
+end
+if spaceSize==nil then
+	spaceSize = 0
+end
+if space==nil then
+	space = 0
+end
+
+if color == nil then
+	color="0xfffffff"
+end
+
+if sizeX < 0 then
+	sizeX=(-sizeX)
+	flagOpposX = 1
+end
+if sizeY < 0 then
+	sizeY=(-sizeY)
+	flagOpposY = 1
+end
+
+if lineWidthSync==1 then
+	lineHeight = lineWidth
+end
+
+--------------------------------------------------------------
+-- 表示する辺
+--------------------------------------------------------------
+local function findIndex(num, tbl)
+	for i,data in ipairs(tbl) do
+		if data==num then
+			return true
+		end
+	end
+	return false
+end
+
+local displaySideTable = {}
+for i=1,4 do
+	table.insert(displaySideTable, findIndex(i,displaySide))
+end
+
+--------------------------------------------------------------
+-- 初期設定
+--------------------------------------------------------------
+if (sizeX * sizeY)==0 or (lineWidth==0 and lineHeight==0) then
+	return
+else
+	obj.setoption("drawtarget", "tempbuffer", sizeX, sizeY)
+	obj.load("figure", "四角形", color)
+end
+
+--------------------------------------------------------------
+-- 寄せ
+--------------------------------------------------------------
+local temp = width
+if flagOpposX == 1 then
+	temp = temp * -1
+end
+
+if alignSideMode==0 then
+	alignSide = temp
+elseif alignSideMode==2 then
+	alignSide = -temp
+end
+--------------------------------------------------------------
+local temp = height
+if flagOpposY == 1 then
+	temp = -temp
+end
+
+if alignUpMode==2 then
+	alignUp = -temp
+elseif alignUpMode==0 then
+	alignUp = temp
+end
+
+--------------------------------------------------------------
+-- 描画
+--------------------------------------------------------------
+local s = alignSide
+local u = alignUp
+local w
+
+if width<lineWidth and height<lineHeight then --Line
+	obj.drawpoly(-width,-height,0,width,-height,0,width,height,0,-width,height,0)
+
+else
+	if flagOpposY==1 then
+		w = -lineHeight
+	else
+		w = lineHeight
+	end
+
+	if displaySideTable[2] then
+		obj.drawpoly(-width,-height,0,width,-height,0,width,-height+w,0,-width,-height+w,0) --UpSide
+	end
+	if displaySideTable[4] then
+		obj.drawpoly(-width,height-w,0,width,height-w,0,width,height,0,-width,height,0) --DownSide
+	end
+
+	if flagOpposX==1 then
+		w = -lineWidth
+	else
+		w = lineWidth
+	end
+
+	if displaySideTable[3] then
+		obj.drawpoly(width-w,-height,0,width,-height,0,width,height,0,width-w,height,0)--RightSide
+	end
+	if displaySideTable[1] then
+		obj.drawpoly(-width,-height,0,-width+w,-height,0,-width+w,height,0,-width,height,0)--LeftSide
+	end
+
+end
+
+
+obj.load("tempbuffer")
+
+--------------------------------------------------------------
+-- 寄せ調整
+--------------------------------------------------------------
 if width>0 then
 	obj.ox = obj.ox + (s * math.cos(r)) * sc
 	obj.oy = obj.oy + (s * math.sin(r)) * sc
