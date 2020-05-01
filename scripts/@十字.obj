@@ -1,0 +1,18 @@
+@十字
+--track0:サイズ,0,4000,100
+--track1:幅,0,4000,10
+--dialog:色/col,color="0xfffffff";
+
+local size = obj.track0 / 2
+local width = obj.track1 / 2
+
+if size==0 or width==0 then
+	return
+else
+	obj.setoption("drawtarget", "tempbuffer", size*2, size*2)
+	obj.load("figure", "四角形", color)
+end
+
+obj.drawpoly(-size,width,0,size,width,0,size,-width,0,-size,-width,0)
+obj.drawpoly(-width,size,0,width,size,0,width,-size,0,-width,-size,0)
+obj.load("tempbuffer")
