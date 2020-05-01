@@ -19,6 +19,7 @@ local width = sizeX / 2
 local height = sizeY / 2
 local alignSide = 0
 local alignUp = 0
+local sc = obj.getvalue("zoom") / 100
 
 if alignUpMode==nil then
 	alignUpMode = 1
@@ -74,9 +75,9 @@ if flagOpposY == 1 then
 	temp = -temp
 end
 
-if alignUpMode==0 then
+if alignUpMode==2 then
 	alignUp = -temp
-elseif alignUpMode==2 then
+elseif alignUpMode==0 then
 	alignUp = temp
 end
 
@@ -203,5 +204,22 @@ else
 end
 
 obj.load("tempbuffer")
-obj.ox = obj.ox + s
-obj.oy = obj.oy + u
+local r = math.rad(obj.rz)
+
+debug_print(sc)
+--¶‰EŠñ‚¹’²®
+if width>0 then
+	obj.ox = obj.ox + (s * math.cos(r)) * sc
+	obj.oy = obj.oy + (s * math.sin(r)) * sc
+else
+	obj.ox = obj.ox - (s * math.cos(r)) * sc
+	obj.oy = obj.oy - (s * math.sin(r)) * sc
+end
+
+if height>0 then
+	obj.ox = obj.ox + (u * math.sin(-r)) * sc
+	obj.oy = obj.oy + (u * math.cos(-r)) * sc
+else
+	obj.ox = obj.ox - (u * math.sin(-r)) * sc
+	obj.oy = obj.oy - (u * math.cos(-r)) * sc
+end
