@@ -100,7 +100,7 @@ rx = getAngle(rx + trx)
 ry = getAngle(ry + try)
 tx, ty, tz = getTarget(cx, cy, cz, l, rx, ry)
 
-if rotateScreen==true and (ry>=90 and ry<=270) then
+if rotateScreen==true and (ry>=90 and ry<270) then
 	cr = cr + 180
 end
 
