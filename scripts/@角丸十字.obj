@@ -1,0 +1,152 @@
+@角丸十字
+--track0:サイズ,0,4000,100
+--track1:幅,0,4000,10
+--track2:線幅,0,1000,1000
+--track3:角サイズ,0,1000,10
+--dialog:色/col,color="0xfffffff";
+
+local size = obj.track0
+local width = obj.track1
+local lineWidth = obj.track2
+local edgeSize = obj.track3 * 2
+
+local function range(num, min)
+	if num<min then
+		return min
+	else
+		return num
+	end
+end
+
+if size==0 or width==0 then
+	return
+end
+
+obj.setoption("drawtarget","tempbuffer", size, size)
+
+if lineWidth > size / 2 then
+	lineWidth = size / 2
+end
+
+if width > (size / 2 + lineWidth) then
+	width = size / 2 + lineWidth
+end
+
+if edgeSize>width then
+	edgeSize = width
+end
+
+if lineWidth>width then
+	lineWidth = width / 2
+end
+
+if size>=edgeSize then
+	size = edgeSize
+end
+
+obj.setoption("blend","alpha_add")
+
+obj.load("figure","円",color,edgeSize * 3,lineWidth * 3)
+--画質が荒くなるので、テクスチャサイズを三倍にしました
+
+--外周四角形の座標
+x0 = obj.track0/2
+x1 = x0 - size/2
+y0 = obj.track0/2
+y1 = y0 - size/2
+--十字の座標
+s_side = width / 2
+s_side_in = s_side - size/2
+
+u0 = 0
+u1 = (size / 2) * 3
+u2 = size * 3
+
+--角の描画
+--Edge
+	-- Up
+	 --Left
+		obj.drawpoly(-s_side, -y0, 0,	-s_side_in, -y0, 0, -s_side_in, -y1, 0, -s_side, -y1, 0, u0, u0, u1, u0, u1, u1, u0, u1)
+	 --Right
+		obj.drawpoly(s_side_in, -y0, 0, s_side, -y0, 0, s_side, -y1, 0, s_side_in, -y1, 0, u1, u0, u2, u0, u2, u1, u1, u1)
+
+	--Down
+	 --Left
+		obj.drawpoly(-s_side, y1, 0, -s_side_in, y1, 0, -s_side_in, y0, 0, -s_side, y0, 0, u0, u1, u1, u1, u1,u2, u0,u2)
+	 --Right
+		obj.drawpoly(s_side_in, y1, 0, s_side, y1, 0, s_side, y0, 0, s_side_in, y0, 0, u1, u1, u2, u1, u2,u2, u1,u2)
+
+	--Left
+	 --Up
+		obj.drawpoly(-x0, -s_side, 0,	-x1, -s_side, 0, -x1, -s_side_in, 0, -x0, -s_side_in, 0, u0, u0, u1, u0, u1, u1, u0, u1)
+	 --Down
+	 obj.drawpoly(-x0, s_side_in, 0, -x1, s_side_in, 0, -x1, s_side, 0, -x0, s_side, 0, u0, u1, u1, u1, u1,u2, u0,u2)
+
+	--Right
+	 --Up
+		obj.drawpoly(x1, -s_side, 0, x0, -s_side, 0, x0, -s_side_in, 0, x1, -s_side_in, 0, u1, u0, u2, u0, u2, u1, u1, u1)
+	 --Down
+		obj.drawpoly(x1, s_side_in, 0, x0, s_side_in, 0, x0, s_side, 0,	x1, s_side, 0, u1, u1, u2, u1, u2,u2, u1,u2 )
+
+
+--各辺の描画
+--Side
+ --Left & Right
+
+		obj.load("figure","四角形",color)
+		x0 = obj.track0 / 2
+		x1 = x0 - lineWidth
+		y0 = range((width - edgeSize) / 2, 0)
+
+		s_size_x0 = x0 - edgeSize / 2
+		s_size_y0 = range(width / 2, 0)
+		s_size_x1 = width/2 - lineWidth
+		s_size_y1 = s_size_y0 - lineWidth
+
+		u0 = 0
+		u1 = lineWidth * 3
+		u2 = range((width - edgeSize * 2) * 3, 0)
+
+		--Left
+		obj.drawpoly(-x0, -y0, 0, -x1, -y0, 0, -x1, y0, 0, -x0, y0, 0, u0, u0, u1, u0, u1, u1, u0, u1)
+		--Right
+		obj.drawpoly(x0, -y0, 0, x1, -y0, 0, x1, y0, 0, x0, y0, 0, u0, u0, u1, u0, u1, u1, u0, u1)
+		--Up Left
+		obj.drawpoly(-s_size_x0, -s_size_y0, 0, -s_size_x1, -s_size_y0, 0, -s_size_x1, -s_size_y1, 0, -s_size_x0, -s_size_y1, 0, u0, u0, u1, u0, u1, u1, u0, u1)
+		--Up Right
+		obj.drawpoly(-s_size_x0, s_size_y0, 0, -s_size_x1, s_size_y0, 0, -s_size_x1, s_size_y1, 0, -s_size_x0, s_size_y1, 0, u0, u0, u1, u0, u1, u1, u0, u1)
+		--Down Left
+		obj.drawpoly(s_size_x0, -s_size_y0, 0, s_size_x1, -s_size_y0, 0, s_size_x1, -s_size_y1, 0, s_size_x0, -s_size_y1, 0, u0, u0, u1, u0, u1, u1, u0, u1)
+		--Down Right
+		obj.drawpoly(s_size_x0, s_size_y0, 0, s_size_x1, s_size_y0, 0, s_size_x1, s_size_y1, 0, s_size_x0, s_size_y1, 0, u0, u0, u1, u0, u1, u1, u0, u1)
+
+--Up & Down
+	 obj.load("figure","四角形",color)
+	 x0 = range((width - edgeSize) / 2,0)
+	 y0 = obj.track0 / 2
+	 y1 = y0 - lineWidth
+
+	 s_size_y0 = y0 - edgeSize / 2
+	 s_size_x0 = range(width / 2, 0)
+	 s_size_y1 = width/2 - lineWidth
+	 s_size_x1 = s_size_x0 - lineWidth
+
+	 u0 = 0
+	 u1 = lineWidth
+	 u2 = range(width - edgeSize * 2, 0)
+
+	 --Up
+	 obj.drawpoly(-x0, -y0, 0, x0, -y0, 0, x0, -y1, 0, -x0, -y1, 0, u0, u0, u1, u0, u1, u1, u0, u1)
+	 --Down
+	 obj.drawpoly(-x0, y1, 0, x0, y1, 0, x0, y0, 0, -x0, y0, 0, u0, u0, u1, u0, u1, u1, u0, u1)
+	 --Up Left
+	 obj.drawpoly(-s_size_x0, -s_size_y0, 0, -s_size_x1, -s_size_y0, 0, -s_size_x1, -s_size_y1, 0, -s_size_x0, -s_size_y1, 0, u0, u0, u1, u0, u1, u1, u0, u1)
+	 --Up Right
+	 obj.drawpoly(-s_size_x0, s_size_y0, 0, -s_size_x1, s_size_y0, 0, -s_size_x1, s_size_y1, 0, -s_size_x0, s_size_y1, 0, u0, u0, u1, u0, u1, u1, u0, u1)
+	 --Down Left
+	 obj.drawpoly(s_size_x0, -s_size_y0, 0, s_size_x1, -s_size_y0, 0, s_size_x1, -s_size_y1, 0, s_size_x0, -s_size_y1, 0, u0, u0, u1, u0, u1, u1, u0, u1)
+	 --Down Right
+	 obj.drawpoly(s_size_x0, s_size_y0, 0, s_size_x1, s_size_y0, 0, s_size_x1, s_size_y1, 0, s_size_x0, s_size_y1, 0, u0, u0, u1, u0, u1, u1, u0, u1)
+
+
+obj.load("tempbuffer")

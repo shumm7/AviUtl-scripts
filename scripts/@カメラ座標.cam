@@ -1,7 +1,8 @@
 @カメラ座標
---track0:x,-1000,1000,0,0.1
---track1:y,-1000,1000,0,0.1
---track2:z,-1000,1000,0,0.1
+--track0:X,-1000,1000,0,0.1
+--track1:Y,-1000,1000,0,0.1
+--track2:Z,-1000,1000,0,0.1
+--track3:傾き,-720,720,0,0.1
 
 --------------------------------------------------------------
 -- 変数
@@ -11,6 +12,7 @@ cam = obj.getoption("camera_param")
 cx = cam.x
 cy = cam.y
 cz = cam.z
+rz = cam.rz
 
 --------------------------------------------------------------
 -- カメラ座標
@@ -19,5 +21,6 @@ cz = cam.z
 cam.x = cx + obj.track0
 cam.y = cy + obj.track1
 cam.z = cz + obj.track2
+cam.rz = rz + obj.track3
 
 obj.setoption("camera_param", cam)
