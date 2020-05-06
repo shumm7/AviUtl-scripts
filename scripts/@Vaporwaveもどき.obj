@@ -1,0 +1,67 @@
+@Vaporwaveもどき
+--track0:中心Y,-1000,1000,0
+--track1:上側Y,-1000,1000,0
+--track2:下側Y,-1000,1000,0
+--track3:サイズ,0,1000,100,1
+--check0:影,1
+--dialog:テキスト,text="VAPORWAVE";フォント,font="MS UI Gothic";強さ,gradEffect=100;色1-1/col,color1=0x0064ff;色1-2/col,color2=0xffffff;色2-1/col,color3=0x000000;色2-2/col,color4=0xff0056;縁サイズ,edgeSize=5;縁ぼかし,edgeBlur=10;縁色1/col,color5=0xffffff;縁色2/col,color6=0xc6c6c6;影強さ,shadow=50;影拡散,shadowBlur=100;影色/col,color7=0xffffff;
+
+local fontSize = obj.track3
+obj.load("text", text)
+obj.setfont(font, fontSize, 0, color1)
+local sizeX = obj.w
+local sizeY = obj.h
+local centerY = obj.track0
+local upperY = obj.track1
+local downerY = obj.track2
+local divHeight = sizeY / 2
+
+if gradEffect>100 or gradEffect<0 then
+	gradEffect = 0
+end
+
+--上半分
+obj.setoption("drawtarget","tempbuffer",sizeX,sizeY)
+obj.load("text", text)
+obj.setfont(font, fontSize, 0, color1)
+obj.effect("斜めクリッピング", "ぼかし", 0, "角度", 0, "中心Y", centerY)
+obj.effect("グラデーション", "強さ", gradEffect, "中心Y", -(divHeight + centerY) / 2 + upperY, "幅", (divHeight + centerY) / 2, "color", color1, "color2", color2)
+obj.draw() --上半分をtempbufferに描写
+obj.copybuffer("cache:div", "tmp") --tempbufferをcacheに退避
+
+--下半分
+obj.setoption("drawtarget","tempbuffer",sizeX,sizeY)
+obj.load("text", text)
+obj.setfont(font, fontSize, 0, color3)
+obj.effect("斜めクリッピング", "ぼかし", 0, "角度", 180, "中心Y", centerY)
+obj.effect("グラデーション", "強さ", gradEffect, "中心Y", (divHeight + centerY) / 2 + downerY, "幅", (divHeight - centerY) / 2, "color", color3, "color2", color4)
+obj.draw() --下半分をtempbufferに描写
+obj.copybuffer("obj", "cache:div") --上半分をcacheからobjに移動
+obj.draw() --objから上半分をtempbufferに描写
+obj.copybuffer("cache:div", "tmp") --tempbufferをcacheに退避
+
+--縁
+obj.setoption("drawtarget","tempbuffer",sizeX,sizeY)
+obj.load("text", text)
+obj.setfont(font, fontSize)
+obj.effect("縁取り", "サイズ", edgeSize, "ぼかし", edgeBlur)
+obj.effect("グラデーション", "強さ", gradEffect, "color", color5, "color2", color6)
+obj.draw() --縁を描写
+obj.copybuffer("obj", "cache:div") --テキストをcacheからobjに移動
+obj.draw() --objからテキストをtempbufferに描写
+if obj.check0==true then
+	obj.copybuffer("cache:div", "tmp") --tempbufferをcacheに退避
+
+	--影
+	obj.setoption("drawtarget","tempbuffer",sizeX*2,sizeY * 2)
+	obj.load("text", text)
+	obj.setfont(font, fontSize)
+	obj.effect("シャドー", "X", 0, "Y", 0, "color", color7, "濃さ", shadow, "拡散", shadowBlur)
+	obj.draw() --影をtempbufferに描写
+	obj.copybuffer("obj", "cache:div") --テキストをcacheからobjに移動
+	obj.draw() --objからテキストをtempbufferに描写
+
+end
+
+--obj.copybuffer("obj", "tmp")
+obj.load("tempbuffer")
