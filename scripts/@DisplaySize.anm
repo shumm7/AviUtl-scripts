@@ -9,11 +9,15 @@ local heightRate = 1
 local zoom = obj.getvalue("zoom") / 100
 
 if beforeHeight <= 0 then
-	beforeHeight = obj.screen_h
+	beforeHeight = obj.h / zoom
 end
 if beforeWidth <= 0 then
-	beforeWidth = obj.screen_w
+	beforeWidth = obj.w / zoom
 end
+
+debug_print(beforeWidth)
+debug_print(beforeHeight)
+
 
 if aspect~=nil and aspectMode==1 then
 	local textStart,textEnd = string.find(aspect, ":")
