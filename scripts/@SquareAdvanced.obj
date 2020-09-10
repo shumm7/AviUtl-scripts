@@ -1,4 +1,4 @@
--- Square-Advanced Ver 2.2
+-- Square-Advanced Ver 2.3  Release-2020-09-11
 --                 しゅう (Twitter: @shulmj_)
 --
 -- テスト環境
@@ -32,8 +32,8 @@
 -- ・横破線・・・破線の角度を90度回転させます
 -- ・破線の位相（トラックバー）・・・破線の開始位置をずらします
 -- ・破線の角度（トラックバー）・・・破線の角度を度数法で指定します
--- ・破線の数値を逆転・・・"破線のサイズ" と "幅" を、"破線の間隔" と "高さ" をそれぞれ交換します。
---
+-- ・破線の数値を入換・・・"破線のサイズ" と "幅" を、"破線の間隔" と "高さ" をそれぞれ交換します。
+-- ・背景・・・チェックすると、"背景色" で指定した色を、破線の透明部分に表示します
 --
 --
 --【Square-Advanced Edge】
@@ -49,6 +49,7 @@
 -- ・常に線幅値を使用・・・"線高さ" の数値を無視して、4辺すべてに "線幅" の値を適用します
 -- ・表示する辺・・・表示する辺を配列で指定します（1:左辺, 2:上辺, 3:右辺, 4:下辺）
 --        例：「{1,3}」のとき 左辺と右辺のみが表示される
+-- ・背景・・・チェックすると、"背景色" で指定した色を、透明部分に表示します
 --
 --
 
@@ -87,7 +88,7 @@ obj.load("tempbuffer")
 --track2:破線の位相,-1000,1000,0
 --track3:破線の角度,-1080,1080,0
 
---dialog:色/col,color="0xfffffff";左右寄せ[0-2],alignSideMode=1;上下寄せ[0-2],alignUpMode=1;破線を中央基準/chk,drawMode=1;横破線/chk,spaceVertical=0;破線のサイズ,spaceSize=0;破線の間隔,space=0;破線の数値を逆転/chk,modeOverride=0;
+--dialog:色/col,color="0xfffffff";左右寄せ[0-2],alignSideMode=1;上下寄せ[0-2],alignUpMode=1;破線を中央基準/chk,drawMode=1;横破線/chk,spaceVertical=0;破線のサイズ,spaceSize=0;破線の間隔,space=0;破線の数値を入換/chk,modeOverride=0;背景/chk,modeBG=0;背景色/col,colorBG="0xfffffff";
 
 --------------------------------------------------------------
 -- 変数
@@ -156,12 +157,12 @@ if (sizeX * sizeY)==0 then
 	return
 else
 	obj.setoption("drawtarget", "tempbuffer", sizeX, sizeY)
-	obj.load("figure", "四角形", color)
 end
 
-local function test_draw(x,y,z)
-	obj.drawpoly(x-10,y-10,z, x+10,y-10,z, x+10,y+10,z, x-10,y+10,z)
-end
+--local function test_draw(x,y,z)
+--	obj.drawpoly(x-10,y-10,z, x+10,y-10,z, x+10,y+10,z, x-10,y+10,z)
+--end
+
 --------------------------------------------------------------
 -- 寄せ
 --------------------------------------------------------------
@@ -204,24 +205,34 @@ local function setSPPosition(cx,cy) --中心座標を指定
 	return px,py
 end
 
+local function drawBackground()
+	if modeBG==1 then
+		obj.load("figure", "四角形", colorBG)
+		obj.drawpoly(-width,-height,0,width,-height,0,width,height,0,-width,height,0)
+	end
+end
+
+
 local s = alignSide
 local u = alignUp
 
 if (spaceSize * space) == 0 then --四角形
+	obj.load("figure", "四角形", color)
 	obj.drawpoly(-width,-height,0,width,-height,0,width,height,0,-width,height,0)
 
 else --破線
-	if spaceDeg < 0 then
-		spaceDeg = -spaceDeg + 90
-	end
-	if spaceDeg >= 360 then
-		spaceDeg = spaceDeg - ( 360 * math.floor(spaceDeg / 360) )
-	end
-	if (spaceDeg > 180 and spaceDeg < 360) then
-		spaceDeg = spaceDeg - 180
-	end
-
 	if drawMode==0 then
+		drawBackground()
+		obj.load("figure", "四角形", color)
+
+		local spaceDeg = spaceDeg % 360
+		if spaceDeg < 0 then
+			spaceDeg = spaceDeg + 360
+		end
+		if (spaceDeg > 180 and spaceDeg < 360) then
+			spaceDeg = spaceDeg - 180
+		end
+
 		if spaceVertical == 0 then
 			if (spaceDeg == 0) or (spaceDeg == 180) then
 				local i = - (spaceSize + space) + (spaceMove % (spaceSize + space)) - width
@@ -320,6 +331,9 @@ else --破線
 			end
 		end --中央基準 OFF
 	elseif drawMode == 1 then --中央基準 ON
+		drawBackground()
+		obj.load("figure", "四角形", color)
+
 		if spaceVertical == 1 then
 			spaceDeg = spaceDeg + 90
 		end
@@ -369,7 +383,7 @@ end
 --track2:線幅,0,4000,4000
 --track3:線高さ,0,4000,4000
 
---dialog:色/col,color="0xfffffff";左右寄せ[0-2],alignSideMode=1;上下寄せ[0-2],alignUpMode=1;常に線幅値を使用/chk,lineWidthSync=0;表示する辺,displaySide={1,2,3,4};
+--dialog:色/col,color="0xfffffff";左右寄せ[0-2],alignSideMode=1;上下寄せ[0-2],alignUpMode=1;常に線幅値を使用/chk,lineWidthSync=0;表示する辺,displaySide={1,2,3,4};背景/chk,modeBG=0;背景色/col,colorBG="0xfffffff";
 
 local sizeX = obj.track0
 local sizeY = obj.track1
@@ -438,7 +452,6 @@ if (sizeX * sizeY)==0 or (lineWidth==0 and lineHeight==0) then
 	return
 else
 	obj.setoption("drawtarget", "tempbuffer", sizeX, sizeY)
-	obj.load("figure", "四角形", color)
 end
 
 --------------------------------------------------------------
@@ -469,14 +482,27 @@ end
 --------------------------------------------------------------
 -- 描画
 --------------------------------------------------------------
+local function drawBackground()
+	if modeBG==1 then
+		obj.load("figure", "四角形", colorBG)
+		obj.drawpoly(-width,-height,0,width,-height,0,width,height,0,-width,height,0)
+	end
+end
+
+
 local s = alignSide
 local u = alignUp
 local w
 
 if width<lineWidth and height<lineHeight then --Line
+	obj.load("figure", "四角形", color)
 	obj.drawpoly(-width,-height,0,width,-height,0,width,height,0,-width,height,0)
 
 else
+	drawBackground()
+	obj.load("figure", "四角形", color)
+	
+
 	if flagOpposY==1 then
 		w = -lineHeight
 	else
