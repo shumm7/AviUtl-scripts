@@ -1,12 +1,17 @@
 @DisplaySize
 --track0:幅,0,7680,1280
 --track1:高さ,0,7680,720
---dialog:初期幅[0:自動],beforeWidth=0;初期高さ[0:自動],beforeHeight=0;アスペクト比を使う/chk,aspectMode=0;アスペクト比[w:h],aspect="4:3";横幅を変化/chk,aspectWidthMode=1;
-local width = obj.track0
-local height = obj.track1
+--dialog:初期幅[0:自動],beforeWidth=0;初期高さ[0:自動],beforeHeight=0;ｵｰﾄﾘｻｲｽﾞ/chk,autoResize=1;アスペクト比を使う/chk,aspectMode=0;アスペクト比[w:h],aspect="4:3";横幅を変化/chk,aspectWidthMode=1;
+local width,height
 local widthRate = 1
 local heightRate = 1
 local zoom = obj.getvalue("zoom") / 100
+
+if autoResize == 0 then
+	width, height = obj.track0, obj.track1
+elseif autoResize == 1 then
+	width, height = obj.screen_w, obj.screen_h
+end
 
 if beforeHeight <= 0 then
 	beforeHeight = obj.h / zoom
