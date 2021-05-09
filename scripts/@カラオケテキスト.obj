@@ -1,0 +1,70 @@
+@カラオケテキスト
+--track0:サイズ,1,512,34
+--track1:ルビサイズ,1,512,16
+--track2:縁サイズ,0,100,10,1
+--track3:進行度,0,100,0
+--dialog:テキスト,line="これはテスト｜文章《ぶんしょう》です。";フォント,font="MS UI Gothic";縁色1/col,edgeColor1="0xffffff";縁色2/col,edgeColor2="0x000000";グラデ幅,gradWidth=100;グラデ色1_1/col,gradColor11="0x117ad7";グラデ色1-2/col,gradColor12="0x0f2d47";グラデ色2-1/col,gradColor21="0xffffff";グラデ色2-2/col,gradColor22="0xffffff";ルビ調整,rubyPos={0,0}
+
+
+local size, rubySize = obj.track0, obj.track1
+if rubySize>size then
+	rubySize = size
+end
+
+--テキスト抽出
+local text, ruby = line, {}
+if text:find("(｜.-《.-》)")~=nil then
+	repeat
+		s1, s2 = text:find("(｜.-《.-》)")
+		temp = text:sub(s1,s2)
+
+		local a1, a2 = temp:find("(｜.)")
+		local b1, b2 = temp:find("(《.)")
+
+		t = temp:sub(a2,temp:find("《")-1)
+		r = temp:sub(b2,temp:find("》")-1)
+
+		text = text:gsub(temp, t, 1)
+		table.insert(ruby, {t, r, s1, s1 + t:len() - 1})
+
+	until text:find("(｜.-《.-》)")==nil
+end
+
+--テキスト設定
+obj.setfont(font, obj.track0, 0, "0xffffff")
+obj.load("text", text)
+local sizeX, sizeY = obj.w, obj.h
+obj.setoption("drawtarget","tempbuffer",sizeX + math.abs(rubyPos[1]), sizeY + size*2 + rubySize*2 + math.abs(rubyPos[2]))
+obj.draw(0,0)
+
+--ルビ描画
+if #ruby>0 then
+	for i=1,#ruby do
+		s, s1, s2 = string.len(text), ruby[i][3], ruby[i][4]
+		rx, ry = sizeX/s * (s1+s2-1)/2 - sizeX/2 + rubyPos[1], -size/2 - rubySize + rubyPos[2]
+		obj.setfont(font, rubySize, 0, "0xffffff")
+		obj.load("text", ruby[i][2])
+		obj.draw(rx,ry)
+	end
+end
+
+obj.copybuffer("cache:text", "tmp") --objからcacheへコピー
+
+--右側テキスト
+obj.setoption("drawtarget","tempbuffer", sizeX+obj.track2*2+math.abs(rubyPos[1]), sizeY+obj.track2*2+rubySize*2+size*2+math.abs(rubyPos[2]))
+obj.copybuffer("obj", "cache:text") --cacheからobjにコピー
+obj.effect("グラデーション", "幅", gradWidth, "color", gradColor21, "color2", gradColor22)
+obj.effect("縁取り", "サイズ", obj.track2, "color", edgeColor2)
+obj.effect("クリッピング", "左", obj.track3 / 100 * obj.w)
+obj.draw(-obj.w/2 + sizeX/2 + obj.track2 + math.abs(rubyPos[1])/2)
+
+--左側テキスト
+obj.copybuffer("obj", "cache:text") --tempbufferからobjにコピー
+obj.effect("グラデーション", "幅", gradWidth, "color", gradColor11, "color2", gradColor12)
+obj.effect("縁取り", "サイズ", obj.track2, "color", edgeColor1)
+obj.effect("クリッピング", "右", (1 - obj.track3 / 100) * obj.w)
+obj.draw(obj.w/2 - sizeX/2 - obj.track2 - math.abs(rubyPos[1])/2)
+
+
+obj.load("tempbuffer")
+obj.draw()
