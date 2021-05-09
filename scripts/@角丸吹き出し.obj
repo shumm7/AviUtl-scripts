@@ -33,8 +33,9 @@ if originMode == 0 then
 			by[i] = anchor[i*4]
 			ax[i] = anchor[i*4 - 3]
 			ay[i] = anchor[i*4 - 2]
-			rad[i] = math.atan2(ay[i], ax[i])
+			rad[i] = math.atan2(by[i] - ay[i], bx[i] - ax[i])
 		end
+		debug_print(math.deg(rad[1]))
 		dx, dy = math.max(sx, math.max(maxt(ax), maxt(bx)) * 2), math.max(sy, math.max(maxt(ay),maxt(by)) * 2)
 	end
 
@@ -94,8 +95,8 @@ if n>0 then
 	for i=1,n do
 		local u0, u1 = 0, obj.w
 		local r = rad[i]
-		local ax0, ay0 = bx[i] + (-fukidashiSize * math.sin(r)), by[i] + (fukidashiSize * math.cos(r))
-		local ax1, ay1 = bx[i] + (fukidashiSize * math.sin(r)), by[i] + (-fukidashiSize * math.cos(r))
+		local ax0, ay0 = bx[i] + (fukidashiSize * math.sin(r)), by[i] + (-fukidashiSize * math.cos(r))
+		local ax1, ay1 = bx[i] + (-fukidashiSize * math.sin(r)), by[i] + (fukidashiSize * math.cos(r))
 
 		obj.load("figure", "éläpå`", color, 100)
 		obj.drawpoly(ax0,ay0,0, ax1,ay1,0, ax[i],ay[i],0, ax[i],ay[i],0)
