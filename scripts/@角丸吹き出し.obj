@@ -1,0 +1,105 @@
+------------------------------------------------------------
+@äpä€êÅÇ´èoÇµ
+------------------------------------------------------------
+--track0:ïù,0,4000,100
+--track1:çÇÇ≥,0,4000,100
+--track2:äpÉTÉCÉY,1,1000,16
+--track3:êÅÇ´èoÇµïù,0,1000,10
+--dialog:êF/col,color="0xfffffff";ÉAÉìÉJÅ[,anchor={-110,110,0,0};èÌÇ…å¥ì_äÓèÄ/chk,originMode=0;
+
+local function maxt(table)
+	local n = math.abs(table[1])
+	for i=1,#table do
+		if math.abs(table[i])>n then
+			n = math.abs(table[i])
+		end
+	end
+	return n
+end
+
+local x,y = obj.x, obj.y
+local sx,sy = obj.track0, obj.track1
+local edgeSize, fukidashiSize = obj.track2, obj.track3
+local bx,by= {},{}
+local ax,ay,rad = {}, {}, {}
+local dx,dy = sx,sy
+
+
+if originMode == 0 then
+	n = math.floor(#anchor / 4)
+	if n>0 then
+		for i=1,n do
+			bx[i] = anchor[i*4 - 1]
+			by[i] = anchor[i*4]
+			ax[i] = anchor[i*4 - 3]
+			ay[i] = anchor[i*4 - 2]
+			rad[i] = math.atan2(ay[i], ax[i])
+		end
+		dx, dy = math.max(sx, math.max(maxt(ax), maxt(bx)) * 2), math.max(sy, math.max(maxt(ay),maxt(by)) * 2)
+	end
+
+elseif originMode == 1 then
+	n = math.floor(#anchor / 2)
+	if n>0 then
+		for i=1,n do
+			bx[i] = 0
+			by[i] = 0
+			ax[i] = anchor[i*2 - 1]
+			ay[i] = anchor[i*2]
+			rad[i] = math.atan2(ay[i], ax[i])
+		end
+		dx, dy = math.max(sx, math.abs(maxt(ax) * 2)), math.max(sy, math.abs(maxt(ay) * 2))
+	end
+end
+
+if originMode == 0 then
+	obj.setanchor("anchor", n*2)
+elseif originMode == 1 then
+	obj.setanchor("anchor", n)
+end
+obj.setoption("blend","alpha_add")
+obj.setoption("drawtarget","tempbuffer", dx, dy)
+
+if (sx * sy == 0) then
+	return
+end
+
+if (sx<edgeSize) or (sy<edgeSize) then
+  edgeSize = math.min(sx,sy)
+end
+
+obj.load("figure","â~",color,edgeSize)
+
+local x0, y0 = sx / 2, sy / 2
+local x1, y1 = x0 - edgeSize / 2, y0 - edgeSize / 2
+local u0, u1, u2 = 0, edgeSize/2, edgeSize
+
+--Edge
+obj.drawpoly(-x0,-y0,0, -x1,-y0,0, -x1,-y1,0, -x0,-y1,0, u0,u0, u1,u0, u1,u1, u0,u1)
+obj.drawpoly(x1,-y0,0, x0,-y0,0, x0,-y1,0, x1,-y1,0, u1,u0, u2,u0, u2,u1, u1,u1)
+obj.drawpoly(-x0,y1,0, -x1,y1,0, -x1,y0,0, -x0,y0,0, u0,u1, u1,u1, u1,u2, u0,u2)
+obj.drawpoly(x1,y1,0, x0,y1,0, x0,y0,0, x1,y0,0, u1,u1, u2,u1, u2,u2, u1,u2)
+
+--Square
+obj.load("figure","â~",color,sx)
+local u0, u1, u2 = 0, obj.w/2, obj.w
+obj.drawpoly(-x0,-y1,0, x0,-y1,0, x0,y1,0, -x0,y1,0, u0,u1, u2,u1, u2,u1, u0,u1)
+
+obj.load("figure","â~",color,sy)
+local u0, u1, u2 = 0, obj.h/2, obj.h
+obj.drawpoly(-x1,-y0,0, x1,-y0,0, x1,y0,0, -x1,y0,0, u1,u0, u1,u0, u1,u2, u1,u2)
+
+--Fukidashi
+if n>0 then
+	for i=1,n do
+		local u0, u1 = 0, obj.w
+		local r = rad[i]
+		local ax0, ay0 = bx[i] + (-fukidashiSize * math.sin(r)), by[i] + (fukidashiSize * math.cos(r))
+		local ax1, ay1 = bx[i] + (fukidashiSize * math.sin(r)), by[i] + (-fukidashiSize * math.cos(r))
+
+		obj.load("figure", "éläpå`", color, 100)
+		obj.drawpoly(ax0,ay0,0, ax1,ay1,0, ax[i],ay[i],0, ax[i],ay[i],0)
+	end
+end
+
+obj.load("tempbuffer")
