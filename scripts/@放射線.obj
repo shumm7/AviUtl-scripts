@@ -18,6 +18,8 @@ function cos(x)
 	return math.cos(math.rad(x))
 end
 
+obj.setanchor("pos", 1)
+
 obj.setoption("drawtarget", "tempbuffer", size, size)
 if transparent == 0 then
 	obj.load("figure","éläpå`",color2,size)
