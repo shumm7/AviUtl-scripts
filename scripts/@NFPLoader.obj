@@ -1,0 +1,112 @@
+@NFPLoader
+--track0:Pixel,0,1000,10
+--check0:OldCol,0
+--file:
+
+---------------------------------------------
+-- AviUtl 1.10                             --
+-- exedit 0.93rc1                          --
+-- Minecraft 1.12.2 & CC:Tweaked 1.80pr1.7 --
+---------------------------------------------
+
+local function getSize(text)
+	local n=0
+	for i=1, #text do
+		if string.len(text[i])>n then
+			n = string.len(text[i])
+		end
+	end
+	return n,#text
+end
+
+local function convert(char)
+	if string.len(char) == nil then
+		return
+	end
+	if string.len(char) ~= 1 then
+		return
+	end
+
+	return string.find("0123456789abcdef", char)
+end
+
+local color = {
+	"0xf0f0f0", --white
+	"0xf2b233", --orange
+	"0xe57fd8", --magenta
+	"0x99b2f2", --lightBlue
+	"0xdede6c", --yellow
+	"0x7fcc19", --lime
+	"0xf2b2cc", --pink
+	"0x4c4c4c", --gray
+	"0x999999", --lightGray
+	"0x4c99b2", --cyan
+	"0xb266e5", --purple
+	"0x3366cc", --blue
+	"0x7f664c", --brown
+	"0x57a64e", --green
+	"0xcc4c4c", --red
+	"0x191919" --black
+}
+local color_old = {
+	"0xf0f0f0", --white
+	"0xeb8844", --orange
+	"0xc354cd", --magenta
+	"0x6689d3", --lightBlue
+	"0xdede6c", --yellow
+	"0x41cd34", --lime
+	"0xd88198", --pink
+	"0x434343", --gray
+	"0x999999", --lightGray
+	"0x287697", --cyan
+	"0x7b2fbe", --purple
+	"0x253192", --blue
+	"0x51301a", --brown
+	"0x3b511a", --green
+	"0xb3312c", --red
+	"0x1e1b1b" --black
+}
+
+
+local fs = io.open(file, "r")
+local pixel, i, p = {}, 1, obj.track0
+
+for line in fs:lines() do
+    pixel[i] = string.gsub(line,"\n","")
+		if pixel[i]==nil then
+			pixel[i]=""
+		end
+		i=i+1
+end
+
+local px, py = getSize(pixel)
+local sx, sy = p * px, p * py
+if sx*sy == 0 then
+	return
+end
+
+for i=1, #pixel do
+	if string.len(pixel[i]) < px then
+		pixel[i] = pixel[i]..string.rep(" ", px - string.len(pixel[i]))
+	end
+end
+
+
+
+if obj.check0 then
+	color = color_old
+end
+
+obj.setoption("drawtarget", "tempbuffer", sx, sy)
+for ix = 1, px do
+	for iy = 1, py do
+		char = convert(string.sub(pixel[iy],ix,ix))
+
+		if char ~= nil then
+			obj.load("figure","ŽlŠpŒ`",color[char],p)
+			obj.draw(p*ix - sx/2 - p/2, p*iy - sy/2 - p/2,0)
+		end
+	end
+end
+
+obj.load("tempbuffer")

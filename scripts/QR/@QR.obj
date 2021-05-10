@@ -1,0 +1,120 @@
+--[[
+------------------------
+        説明書
+------------------------
+「@QR」はAviUtl上でQRコードを生成することの出来るシンプルなスクリプトです。
+このスクリプトにはqrencode.luaというライブラリを使用しています。
+
+＊ 動作環境
+以下の環境でテストしています。
+・AviUtl 1.10
+・拡張編集 0.93rc1
+・rikkymodule version2 0.1.delta
+
+＊ 導入方法（rikky_moduleが導入されていない場合）
+１．「@QR.obj」をscriptフォルダ内に配置します。
+２．「qrencode.lua」を好きな場所に配置します。
+３．カスタムオブジェクトから「@QR」を追加します。
+４．設定ダイアログの「qrencode.lua」という項目に、２で配置したqrencode.luaまでのフルパスを入力します。
+
+＊ 導入方法（rikky_moduleが導入されている場合）
+１．「@QR.obj」をscriptフォルダ内に配置します。
+２．「qrencode.lua」をaviutl.exeと同じ場所に配置します。
+３．カスタムオブジェクトから「@QR」を追加します。
+
+]]
+
+@QR
+--track0:サイズ,1,256,5
+--dialog:qrencode.lua,dir="";テキスト,local text="aviutl";色1/col,local col1="0xffffff";色2/col,local col2="0x000000";透明/chk,toggle=0;
+
+local size = obj.track0
+
+if dir=="" or dir==nil then
+	if rikky_module ~= nil then
+		dir = rikky_module.getinfo("path").."qrencode.lua"
+		dir = string.gsub(dir, "\\", "/")
+	end
+end
+
+function file_exists(name)
+   local f=io.open(name,"r")
+   if f~=nil then
+		 io.close(f)
+		 return true
+	 else
+		 return false
+	 end
+end
+
+local function matrix_to_string(tab,white,black)
+    local ret = {}
+
+    for i=1,#tab + 2 do
+        ret[i] = ""
+    end
+
+    for x=1,#tab do
+        for y=1,#tab do
+            if tab[x][y] > 0 then
+                ret[y + 1] = ret[y + 1] .. black
+            elseif tab[x][y] < 0 then
+                ret[y + 1] = ret[y + 1] .. white
+            else
+                ret[y + 1] = ret[y + 1] .. white .. black
+            end
+        end
+    end
+
+    return ret
+end
+
+local function draw_dots(tab)
+	local height = #tab
+	local width = string.len(tab[math.floor(height/2)])
+
+	local divW = (width * size)/2
+	local divH = (height * size)/2
+
+	obj.setoption("drawtarget", "tempbuffer", width * size, height * size)
+	if toggle==0 then
+		obj.load("figure", "四角形", col1)
+		for x=1,width do
+			for y=1,height do
+				if string.sub(tab[y],x,x)=="0" then
+					obj.drawpoly((x-1)*size-divW,(y-1)*size-divH,0, x*size-divW,(y-1)*size-divH,0, x*size-divW,y*size-divH,0, (x-1)*size-divW,y*size-divH,0)
+				end
+			end
+		end
+	end
+
+	obj.load("figure", "四角形", col2)
+	for x=1,width do
+		for y=1,height do
+			if string.sub(tab[y],x,x)=="1" then
+				obj.drawpoly((x-1)*size-divW,(y-1)*size-divH,0, x*size-divW,(y-1)*size-divH,0, x*size-divW,y*size-divH,0, (x-1)*size-divW,y*size-divH,0)
+			end
+		end
+	end
+	obj.load("tempbuffer")
+
+end
+
+if file_exists(dir) then
+	qrencode = dofile(dir)
+
+else
+	obj.setfont("MS UI Gothic", size)
+	obj.load("text", "qrencode.luaまでのフルパスを指定してください。\n 例：C:/Users/admin/Documents/aviutl/script/qrencode.lua")
+	obj.draw()
+	return
+end
+
+local ok, tab_or_message = qrencode.qrcode(text)
+if not ok then
+	obj.setfont("MS UI Gothic", size)
+  obj.load("text", tab_or_message)
+	obj.draw()
+else
+	draw_dots(matrix_to_string(tab_or_message,"0","1"))
+end
