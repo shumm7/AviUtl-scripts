@@ -1,0 +1,17 @@
+color,name,japanese,english
+0x000000,Black,,black
+0x0000aa,Dark Blue,,dark blue
+0x00aa00,Dark Green,,dark green
+0x00aaaa,Dark Aqua,,dark aqua
+0xaa0000,Dark Red,,dark red
+0xaa00aa,Dark Purple,,dark purple
+0xffaa00,Gold,,gold
+0xaaaaaa,Gray,,gray
+0x555555,Dark Gray,,dark gray
+0x5555ff,Blue,,blue
+0x55ff55,Green,,green
+0x55ffff,Aqua,,aqua
+0xff5555,Red,,red
+0xff55ff,Light Purple,,light purple
+0xffff55,Yellow,,yellow
+0xffffff,White,,white

@@ -1,0 +1,217 @@
+color,name,japanese,english
+0x000000,原色の黒,げんしょくのくろ,black
+0x000033,ミッドナイトブルー1,みっどないとぶるー,midnightblue 1
+0x000066,漆黒,しっこく,raven
+0x000099,似紫5,にせむらさき5,fake purple 5
+0x0000cc,ミディアムブルー2,みでぃあむぶるー2,medium blue 2
+0x0000ff,原色の青,げんしょくのあお,blue
+0x003300,鉄3,てつ3,iron green 3
+0x003333,鉄紺5,てつこん5,green indigo 5
+0x003366,紺3,こん3,indigo 3
+0x003399,紺1,こん1,indigo 1
+0x0033cc,プルシャンブルー3,ぷるしゃんぶるー3,Prussian blue 3
+0x0033ff,青3,あお3,blue 3
+0x006600,ダークグリーン2,だーくぐりーん2,dark green 2
+0x006633,鉄1,てつ1,iron green 1
+0x006666,鉄紺3,てつこん3,green indigo 3
+0x006699,藍1,あい1,indigo 1
+0x0066cc,瑠璃,るり,lapis lazuli
+0x0066ff,プルシャンブルー1,ぷるしゃんぶるー1,Prussian blue 1
+0x009900,ハンターグリーン3,はんたーぐりーん3,hunter green 3
+0x009933,深緑2,しんりょく2,deep green 2
+0x009966,ビリヤード,びりやーど,billiard
+0x009999,納戸1,なんど1,teal 2
+0x0099cc,マリンブルー,まりんぶるー,marine blue
+0x0099ff,コバルトブルー,こばるとぶるー,cobalt blue
+0x00cc00,緑2,みどり2,green 2
+0x00cc33,クロームグリーン3,くろーむぐりーん3,chrome green 3
+0x00cc66,クロームグリーン1,くろーむぐりーん1,chrome green 1
+0x00cc99,ピーコックグリーン1,ぴーこっくぐりーん1,peacock green 1
+0x00cccc,ダークターコイズ2,だーくたーこいず2,dark turquoise 2
+0x00ccff,セルリアンブルー,せるりあんぶるー,cerulean blue
+0x00ff00,原色の緑,げんしょくのみどり,lime
+0x00ff33,ライム2,らいむ2,lime 2
+0x00ff66,スプリンググリーン2,すぷりんぐぐりーん2,spring green 2
+0x00ff99,ミディアムスプリンググリーン2,みでぃあむすぷりんぐぐりーん2,medium spring green 2
+0x00ffcc,ピーコックグリーン4,ぴーこっくぐりーん4,peacock green 4
+0x00ffff,原色のシアン,げんしょくのしあん,aqua
+0x330000,アイボリーブラック,あいぼりーぶらっく,ivory black
+0x330033,濡羽色,ぬればいろ,wet crow
+0x330066,ミッドナイトブルー2,みっどないとぶるー2,midnightblue 2
+0x330099,似紫4,にせむらさき4,fake purple 4
+0x3300cc,青5,あお5,blue 5
+0x3300ff,青1,あお1,blue 1
+0x333300,モグラ,もぐら,taupe
+0x333333,フリント,ふりんと,flint
+0x333366,茄子紺2,なすこん2,eggplant blue 2
+0x333399,紺2,こん2,indigo 2
+0x3333cc,プルシャンブルー4,ぷるしゃんぶるー4,Prussian blue 4
+0x3333ff,青4,あお4,blue 4
+0x336600,オリーブグリーン2,おりーぶぐりーん2,olive green 2
+0x336633,鉄2,てつ2,iron green 2
+0x336666,鉄紺2,てつこん2,green indigo 2
+0x336699,藍2,あい2,indigo 2
+0x3366cc,ネイビーブルー,ねいびーぶるー,navy blue
+0x3366ff,プルシャンブルー2,ぷるしゃんぶるー2,Prussian blue 2
+0x339900,ハンターグリーン1,はんたーぐりーん1,hunter green 1
+0x339933,深緑1,しんりょく1,deep green 1
+0x339966,ビリジアン,びりじあん,viridian
+0x339999,錆納戸2,さびなんど2,rusty closet 2
+0x3399cc,サファイアブルー,さふぁいあぶるー,sapphire blue
+0x3399ff,ガーターブルー,がーたーぶるー,garter blue
+0x33cc00,緑3,みどり3,green 3
+0x33cc33,ライムグリーン2,らいむぐりーん2,lime green 2
+0x33cc66,マラカイトグリーン2,まらかいとぐりーん2,malachite green 2
+0x33cc99,ピーコックグリーン2,ぴーこっくぐりーん2,peacock green 2
+0x33cccc,ミディアムターコイズ2,みでぃあむたーこいず2,medium turquoise 2
+0x33ccff,露草2,つゆくさ2,blue spiderwort 2
+0x33ff00,ライム1,らいむ1,lime 1
+0x33ff33,ライム3,らいむ3,lime 3
+0x33ff66,クロームグリーン5,くろーむぐりーん5,chrome green 5
+0x33ff99,クロームグリーン2,くろーむぐりーん2,chrome green 2
+0x33ffcc,ピーコックグリーン3,ぴーこっくぐりーん3,peacock green 3
+0x33ffff,シアン1,しあん1,cyan 1
+0x660000,バーガンディ1,ばーがんでぃ1,burgundy 1
+0x660033,マルーン3,まるーん3,maroon 3
+0x660066,ボルドー,ぼるどー,bourdeaux
+0x660099,似紫2,にせむらさき2,fake purple 2
+0x6600cc,似紫1,にせむらさき1,fake purple 1
+0x6600ff,青2,あお2,blue 2
+0x663300,栗,くり,chestnut
+0x663333,赤銅1,しゃくどう1,dime brown 1
+0x663366,茄子紺1,なすこん1,eggplant blue 1
+0x663399,江戸紫,えどむらさき,Yedo purple
+0x6633cc,似紫3,にせむらさき3,fake purple 3
+0x6633ff,ヘリオトロープ5,へりおとろーぷ5,heriotrope 5
+0x666600,ビスタ,びすた,bistre
+0x666633,煤竹,すすたけ,dirty bamboo
+0x666666,憲房1,けんぽう1,dim gray 1
+0x666699,二藍,ふたあい,indigo twice
+0x6666cc,京紫2,きょうむらさき2,Kyoto purple 2
+0x6666ff,菖蒲2,しょうぶ2,iris 2
+0x669900,ハンターグリーン2,はんたーぐりーん2,hunter green 2
+0x669933,オリーブグリーン1,おりーぶぐりーん1,olive green 1
+0x669966,サップグリーン,さっぷぐりーん,sap green
+0x669999,錆納戸3,さびなんど23,rusty closet 3
+0x6699cc,新橋,しんばし,jay blue 1
+0x6699ff,花1,はな1,corn flower blue 1
+0x66cc00,萌黄4,もえぎ4,bud yellow 4
+0x66cc33,萌黄5,もえぎ5,bud yellow 5
+0x66cc66,マラカイトグリーン1,まらかいとぐりーん1,malachite green 1
+0x66cc99,鴨の羽,かものは,mallard's feather
+0x66cccc,アクアマリン1,あくあまりん1,aquamarine 1
+0x66ccff,露草1,つゆくさ1,blue spiderwort 1
+0x66ff00,ライム4,らいむ4,lime 4
+0x66ff33,ライム5,らいむ5,lime 5
+0x66ff66,クロームグリーン4,くろーむぐりーん4,chrome green 4
+0x66ff99,エンペラーグリーン,えんぺらーぐりーん,emperor green
+0x66ffcc,ターコイズブルー,たーこいずぶるー,turquoise blue
+0x66ffff,シアン2,しあん2,cyan 2
+0x990000,パーシアンレッド1,ぱーしあんれっど1,percian red 1
+0x990033,アガット2,あがっと2,agate 2
+0x990066,マルーン1,まるーん1,maroon 1
+0x990099,クリムゾン1,くりむぞん1,crimson 1
+0x9900cc,シャクヤク,しゃくやく,peony
+0x9900ff,ヘリオトロープ2,へりおとろーぷ2,heriotrope 2
+0x993300,海老茶,えびちゃ,prawn brown
+0x993333,赤銅2,しゃくどう2,dime brown 2
+0x993366,マルーン2,まるーん2,maroon 2
+0x993399,葡萄1,ぶどう1,grape 1
+0x9933cc,ダークオーキッド2,だーくおーきっど2,dark orchid 2
+0x9933ff,ヘリオトロープ1,へりおとろーぷ1,heriotrope 1
+0x996600,茶1,ちゃ1,brown 1
+0x996633,ヘーゼル,へーぜる,hazel
+0x996666,ココア,ここあ,cocoa brown
+0x996699,減紫,けしむらさき,discolored purple
+0x9966cc,京紫1,きょうむらさき1,Kyoto purple 1
+0x9966ff,菖蒲1,しょうぶ1,iris 1
+0x999900,オリーブ1,おりーぶ1,olive 1
+0x999933,鶯,うぐいす,bush warbler green
+0x999966,梅幸茶,ばいこうちゃ,Baiko's brown
+0x999999,鉛1,なまり1,dark gray 1
+0x9999cc,竜胆,りんどう,gentian blue
+0x9999ff,藤2,ふじ2,wistaria 2
+0x99cc00,萌黄2,もえぎ2,bud yellow 2
+0x99cc33,ゲイグリーン,げいぐりーん,gay green
+0x99cc66,草,くさ,grass
+0x99cc99,老竹,おいたけ,old bamboo
+0x99cccc,ポースリンブルー,ぽーすりんぶるー,porcelain blue
+0x99ccff,ジェイブルー,じぇいぶるー,jay blue 2
+0x99ff00,若草,わかくさ,young grass
+0x99ff33,萌黄1,もえぎ1,bud yellow 1
+0x99ff66,エメラルドグリーン,えめらるどぐりーん,emerald green
+0x99ff99,コバルトグリーン,こばるとぐりーん,cobalt green
+0x99ffcc,ターコイズグリーン,たーこいずぐりーん,turquoise green
+0x99ffff,アザーブルー,あざーぶるー,azure blue
+0xcc0000,パーシアンレッド2,ぱーしあんれっど2,percian red 2
+0xcc0033,カッパーレッド2,かっぱーれっど2,copper red 2
+0xcc0066,シグナルレッド2,しぐなるれっど2,signal red 2
+0xcc0099,紅,べに,safflower red
+0xcc00cc,マゼンタ1,まぜんた1,magenta 1
+0xcc00ff,ヘリオトロープ4,へりおとろーぷ4,heriotrope 4
+0xcc3300,ヘンナ,へんな,henna
+0xcc3333,カッパーレッド1,かっぱーれっど1,copper red 1
+0xcc3366,アガット1,あがっと1,agate 1
+0xcc3399,紅2,べに2,Chinese red 2
+0xcc33cc,チリアンパープル,ちりあんぱーぷる,tyrian purple
+0xcc33ff,ヘリオトロープ3,へりおとろーぷ3,heriotrope 3
+0xcc6600,キャロット2,きゃろっと2,carrot 2
+0xcc6633,樺,かば,cherry bark
+0xcc6666,フォイーユモルト,ふぉいーゆもると,feuille morte
+0xcc6699,今様,いまよう,contemporary color
+0xcc66cc,マロウ2,まろう2,marrow 2
+0xcc66ff,本紫,ほんむらさき,real purple
+0xcc9900,路考茶,ろこうちゃ,Roko's brown
+0xcc9933,タン1,たん1,tan 1
+0xcc9966,琥珀,こはく,amber brown
+0xcc9999,アズキ,あずき,russet
+0xcc99cc,オールドローズ,おーるどろーず,old rose
+0xcc99ff,藤3,ふじ3,wistaria 3
+0xcccc00,菜種油,なたねゆ,canola oil
+0xcccc33,黄蘗,きわだ,Amur cork yellow
+0xcccc66,シャルトルーズ2,しゃるとるーず2,chartreuse 2
+0xcccc99,ウィローグリーン,うぃろーぐりーん,willow green
+0xcccccc,シルヴァーグレイ,しるヴぁーぐれい,silver gray
+0xccccff,藤1,ふじ1,wistaria 1
+0xccff00,アップルグリーン1,あっぷるぐりーん1,apple green 1
+0xccff33,アップルグリーン2,あっぷるぐりーん2,apple green 2
+0xccff66,萌黄3,もえぎ3,bud yellow 3
+0xccff99,グラスグリーン,ぐらすぐりーん,grass green
+0xccffcc,浅緑,せんりょく,light green 2
+0xccffff,水色,みずいろ,water
+0xff0000,原色の赤,げんしょくのあか,red
+0xff0033,スカーレット2,すかーれっと2,scarlet 2
+0xff0066,チェリー2,ちぇりー2,cherry 2
+0xff0099,カーマイン,かーまいん,carmine
+0xff00cc,ストロベリー1,すとろべりー1,strawberry 1
+0xff00ff,原色のマゼンタ,げんしょくのまぜんた,fuchsia
+0xff3300,赤,あか,red
+0xff3333,スカーレット1,すかーれっと1,scarlet 1
+0xff3366,チェリー1,ちぇりー1,cherry 1
+0xff3399,シグナルレッド1,しぐなるれっど1,signal red 1
+0xff33cc,ストロベリー2,すとろべりー2,strawberry 2
+0xff33ff,マゼンタ2,まぜんた2,magenta 2
+0xff6600,ファイアレッド2,ふぁいあれっど2,fire red 2
+0xff6633,ファイアレッド1,ふぁいあれっど1,fire red 1
+0xff6666,朱2,しゅ2,vermilion
+0xff6699,朱1,しゅ1,Oriental vermilion
+0xff66cc,紅1,べに1,Chinese red 1
+0xff66ff,躑躅,つつじ,azalea
+0xff9900,クロームオレンジ,くろーむおれんじ,chrome orange
+0xff9933,キャロット1,きゃろっと1,carrot 1
+0xff9966,タンジャリン,たんじゃりん,tangerine
+0xff9999,黄丹,おうに,prince yellow
+0xff99cc,桃,もも,peach blossom
+0xff99ff,マロウ1,まろう1,marrow 1
+0xffcc00,向日葵,ひまわり,sunflower
+0xffcc33,山吹,やまぶき,kerria
+0xffcc66,雌黄,しおう,gamboge
+0xffcc99,雄黄,ゆうおう,poison yellow
+0xffcccc,肌,はだ,flesh
+0xffccff,撫子,なでしこ,Chinese pink
+0xffff00,原色の黄,げんしょくのき,yellow
+0xffff33,金糸雀,かなりあ,canary
+0xffff66,サルファーイエロー,さるふぁーいえろー,sulphar yellow
+0xffff99,ミモザ,みもざ,mimosa
+0xffffcc,クリーム,くりーむ,cream
+0xffffff,原色の白,げんしょくのしろ,white
