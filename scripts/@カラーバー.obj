@@ -1,0 +1,70 @@
+@カラーバー
+--track0:Xサイズ,0,4000,1280
+--track1:Yサイズ,0,4000,720
+
+sizeX = obj.track0
+sizeY = obj.track1
+width = sizeX / 2
+height = sizeY / 2
+
+if sizeX * sizeY == 0 then
+	return
+end
+
+local C = {
+	white = "0xffffff",
+	yellow = "0xffff00",
+	cyan = "0x00ffff",
+	green = "0x00ff00",
+	magenta = "0xff00ff",
+	red = "0xff0000",
+	blue = "0x0000ff",
+	black = "0x000000",
+	purple = "0x800080",
+	gray = "0x808080"
+}
+
+local ypos = {0, 740, 800, 1080}
+local xpos = {
+	{0, 274.5, 549, 823.5, 1098, 1372.5, 1647, 1920},
+	{0, 274.5, 549, 823.5, 1098, 1372.5, 1647, 1920},
+	{0, 384, 768, 1152, 1396, 1490, 1584, 1678, 1920}
+}
+local color = {
+	{C.white, C.yellow, C.cyan, C.green, C.magenta, C.red, C.blue},
+	{C.blue, C.black, C.magenta, C.black, C.cyan, C.black, C.white},
+	{"0x004080", C.white, C.purple, "0x6a6a6a", "0x3f3f3f", C.gray, "0xc0c0c0", C.black}
+}
+
+for y=1,#ypos do
+	ypos[y] = (ypos[y]/1080) * sizeY
+	if y==#ypos then
+		break
+	end
+
+	for x=1,#xpos[y] do
+		xpos[y][x] = (xpos[y][x]/1920) * sizeX
+	end
+end
+
+u0=0
+u1=obj.w
+v2=obj.h
+
+obj.setoption("drawtarget", "tempbuffer", sizeX, sizeY)
+obj.setoption("blend","alpha_add")
+
+for y=1,#ypos-1 do
+	for x=1,#xpos[y]-1 do
+		obj.load("figure", "四角形", color[y][x], 1)
+
+		obj.drawpoly(
+			xpos[y][x]-width, ypos[y]-height, 0,
+			xpos[y][x+1]-width, ypos[y]-height, 0,
+			xpos[y][x+1]-width, ypos[y+1]-height, 0,
+			xpos[y][x]-width, ypos[y+1]-height, 0,
+			u0,u0,u1,u0,u1,v2,u0,v2
+		)
+	end
+end
+obj.load("tempbuffer")
