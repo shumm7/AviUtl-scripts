@@ -1,6 +1,7 @@
 @カラーバー
 --track0:Xサイズ,0,4000,1280
 --track1:Yサイズ,0,4000,720
+--track2:明度,0,200,100,1
 
 sizeX = obj.track0
 sizeY = obj.track1
@@ -68,3 +69,4 @@ for y=1,#ypos-1 do
 	end
 end
 obj.load("tempbuffer")
+obj.effect("色調補正", "明るさ", obj.track2)
