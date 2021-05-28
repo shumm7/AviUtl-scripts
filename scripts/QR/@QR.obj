@@ -13,15 +13,8 @@
 
 ＊ 導入方法（rikky_moduleが導入されていない場合）
 １．「@QR.obj」をscriptフォルダ内に配置します。
-２．「qrencode.lua」を好きな場所に配置します。
+２．「qrencode.lua」を「@QR.obj」と同じ場所に配置します。
 ３．カスタムオブジェクトから「@QR」を追加します。
-４．設定ダイアログの「qrencode.lua」という項目に、２で配置したqrencode.luaまでのフルパスを入力します。
-
-＊ 導入方法（rikky_moduleが導入されている場合）
-１．「@QR.obj」をscriptフォルダ内に配置します。
-２．「qrencode.lua」をaviutl.exeと同じ場所に配置します。
-３．カスタムオブジェクトから「@QR」を追加します。
-
 ]]
 
 @QR
@@ -31,10 +24,7 @@
 local size = obj.track0
 
 if dir=="" or dir==nil then
-	if rikky_module ~= nil then
-		dir = rikky_module.getinfo("path").."qrencode.lua"
-		dir = string.gsub(dir, "\\", "/")
-	end
+	dir = obj.getinfo("script_path").."qrencode.lua"
 end
 
 function file_exists(name)
