@@ -28,10 +28,11 @@
 - [NFPLoader](#anchor20)
 - [カラオケテキスト](#anchor21)
 - [心電図](#anchor22)
-- [カラーバー](#anchor23)
+- [color_lib](#anchor23)
+- [カラーバー](#anchor24)
 
 
-	
+
 <a id="anchor1"></a>
 ## Suqare-Advanced
 スクリプト内にも説明を記述しているため、詳細はそちらを参照。  
@@ -488,6 +489,11 @@ MinecraftのMOD「Computer Craft」のpaintutils APIで生成された、NFPフ�
 
 
 <a id="anchor23"></a>
+## color_lib
+同梱のreadmeを参照。
+
+
+<a id="anchor24"></a>
 ## カラーバー
 テレビでよく見るカラーバーを描画するカスタムオブジェクト  
 
