@@ -1,0 +1,71 @@
+@色表示(RGB)
+--track0:Size,1,4000,100
+--track1:R,0,255,0,1
+--track2:G,0,255,0,1
+--track3:B,0,255,0,1
+--dialog:図形,fig="四角形";色/col,color="";
+
+if color== nil or color == "" then
+	color = RGB(obj.track1, obj.track2, obj.track3)
+	obj.load("figure", fig, color, obj.track0)
+else
+	obj.load("figure", fig, color, obj.track0)
+end
+obj.draw()
+
+@色表示(HSV)
+--track0:Size,1,1000,100
+--track1:H,0,360,0,1
+--track2:S,0,100,0,1
+--track3:V,0,100,0,1
+--dialog:図形,fig="四角形";色/col,color="";
+
+if color== nil or color == "" then
+	color = HSV(obj.track1, obj.track2, obj.track3)
+	obj.load("figure", fig, color, obj.track0)
+else
+	obj.load("figure", fig, color, obj.track0)
+end
+obj.draw()
+
+@色検索
+--track0:Size,1,1000,100
+--track1:Mode,0,3,1,1
+--dialog:検索文字列,string="";リスト名,list="jis";項目を限定,mode="name,japanese,english";図形,fig="四角形";色情報表示/chk,show_info=1;テキストサイズ,font_size=45;フォント,font_family="MS UI Gothic";テキスト装飾,font_deco=0;文字色/col,font_col1="0xffffff";装飾色/col,font_col2="0x000000";
+--check0:Guide,0
+
+obj.setfont(font_family, font_size, font_deco, font_col1, font_col2)
+if obj.check0 then
+	string = "ダイアログの「検索文字列」に文字列を入力すると、\nそれに近い色を検索して表示します。\n\n「項目を限定」では、テーブルで検索する項目を指定できます。\n（\"name\",\"color\",\"japanese\",\"english\"）\n\n「検索モード」は検索を行う際のアルゴリズムを指定します。\n（0:完全一致, 1:部分一致, 2:前方一致, 3:後方一致）"
+	obj.load("text", string)
+	obj.draw()
+	return
+end
+
+require("color_lib")
+DATA_PATH = string.gsub(obj.getinfo("script_path").."color_lib\\color_list\\"..list..".csv", "\\", "/")
+r = color_lib.searchColor(DATA_PATH, string, mode, obj.track1)
+
+if r==nil and show_info==1 then
+	obj.load("text", "色が見つかりませんでした")
+	obj.draw()
+else
+	if r[1].color~="" and r[1].color~=nil then
+		obj.load("figure", fig, r[1].color, obj.track0)
+		obj.draw()
+	end
+	if r[1].english==nil then
+		r[1].english=""
+	end
+	if r[1].japanese==nil then
+		r[1].japanese=""
+	end
+	if r[1].name==nil then
+		r[1].name=""
+	end
+
+	if show_info==1 then
+		obj.load("text", r[1].name.." ("..r[1].japanese.."/"..r[1].english..")")
+		obj.draw(0, obj.track0/2 + font_size)
+	end
+end
