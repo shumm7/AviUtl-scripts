@@ -1,4 +1,4 @@
--- Square-Advanced Ver 2.3  Release-2020-09-11
+-- Square-Advanced Ver 2.4  Release-2021-06-03
 --                 ‚µ‚ã‚¤ (Twitter: @shulmj_)
 --
 -- ƒeƒXƒgŠÂ‹«
@@ -193,14 +193,21 @@ end
 --------------------------------------------------------------
 local function setSPPosition(cx,cy) --’†SÀ•W‚ðŽw’è
 	local r_s = math.rad(spaceDeg) --”jü‚ÌŠp“x
-	local r_t = math.rad(90 - spaceDeg) --”jü‚ÌŠp“x + 90“x
 	local sh = math.sqrt(sizeX * sizeX + sizeY * sizeY) --”jü‚Ì’·‚³
 	local sp_w = spaceSize / 2 --”jü‚Ì•
+	local sp_m = spaceMove --”jü‚ÌˆÊ‘Š
+	local sx,sy = 0, 0 --‰ñ“]Œ´“_
 
-	local p_c = {cx + math.cos(r_t) * sh, cy - math.sin(r_t) * sh, cx - math.cos(r_t) * sh, cy + math.sin(r_t) * sh}
-	 --”jü‚Ì’†‰›ü‚Ìã’[‚ÌX,YE‰º’[‚ÌX,Y
-	local px = {p_c[1] + math.cos(r_s)*sp_w, p_c[1] - math.cos(r_s)*sp_w, p_c[3] - math.cos(r_s)*sp_w, p_c[3] + math.cos(r_s)*sp_w}
-	local py = {p_c[2] + math.sin(r_s)*sp_w, p_c[2] - math.sin(r_s)*sp_w, p_c[4] - math.sin(r_s)*sp_w, p_c[4] + math.sin(r_s)*sp_w}
+  --‰ñ“]‚È‚µ ˆÊ‘Š‚¸‚ê‚ ‚è 4“_À•W
+	local px = {cx+sp_w+sp_m, cx-sp_w+sp_m, cx-sp_w+sp_m, cx+sp_w+sp_m}
+	local py = {cy+sh, cy+sh, cy-sh, cy-sh}
+
+	-- (sx,sy)‚ð‰ñ“]Œ´“_‚Æ‚µ‚Ä‰ñ“]iƒAƒtƒBƒ“•ÏŠ·j
+	for i=1,4 do
+		local x,y = px[i], py[i]
+		px[i] = x*math.cos(r_s) + y*-math.sin(r_s) + sx-sx*math.cos(r_s)+sy*math.sin(r_s)
+		py[i] = x*math.sin(r_s) + y*math.cos(r_s) + sy-sx*math.sin(r_s)-sy*math.cos(r_s)
+	end
 
 	return px,py
 end
@@ -332,6 +339,7 @@ else --”jü
 		end --’†‰›Šî€ OFF
 	elseif drawMode == 1 then --’†‰›Šî€ ON
 		drawBackground()
+
 		obj.load("figure", "ŽlŠpŒ`", color)
 
 		if spaceVertical == 1 then
@@ -343,11 +351,15 @@ else --”jü
 		local gap = space + spaceSize
 		local sh = math.sqrt(sizeX * sizeX + sizeY * sizeY)
 
+		if math.abs(spaceMove) > space+spaceSize then
+			spaceMove = spaceMove - gap * math.floor(spaceMove/gap)
+		end
+
 		local max = math.ceil(sh / gap)
 		local i = -max
 
 		while i<max do
-			cx,cy = spaceMove * math.cos(r_s) + i*gap*math.cos(r_s), -spaceMove * math.sin(r_s) + i*gap*math.sin(r_s)
+			cx,cy = i*gap, i*gap
 			px,py = setSPPosition(cx,cy)
 			obj.drawpoly(px[1],py[1],0, px[2],py[2],0, px[3],py[3],0, px[4],py[4],0)
 			i=i+1
@@ -501,7 +513,7 @@ if width<lineWidth and height<lineHeight then --Line
 else
 	drawBackground()
 	obj.load("figure", "ŽlŠpŒ`", color)
-	
+
 
 	if flagOpposY==1 then
 		w = -lineHeight
