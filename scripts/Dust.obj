@@ -1,0 +1,14 @@
+--track0:閾値,0,100,90
+--track1:サイズ,0,200,50
+--track2:変化速度,0,500,50
+--track3:タイプ,1,6,1,1
+--dialog:色/col,color="0x000000";シード,local seed=0;
+local threshold = obj.track0
+local size = obj.track1/10
+local change = obj.track2
+local type = obj.track3 - 1
+
+obj.load("figure", "四角形", color, obj.screen_w)
+obj.effect("ノイズ", "変化速度", change, "周期X", size, "周期Y", size, "しきい値", threshold, "type", type, "seed", seed)
+x=rand(-obj.screen_w/2,obj.screen_w/2)
+y=rand(-obj.screen_h/2,obj.screen_h/2)

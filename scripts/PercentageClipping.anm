@@ -1,0 +1,19 @@
+--track0:割合,0,100,0
+--track1:方向,1,4,4,1
+--check0:中心の位置を変更,0
+
+local zoom = obj.getvalue("zoom") / 100
+local mid = 0
+if obj.check0 then
+	mid = 1
+end
+
+if obj.track1==1 then --上
+	obj.effect("クリッピング", "上", obj.track0 / 100 * obj.h / zoom, "中心の位置を変更", mid)
+elseif obj.track1==2 then --下
+	obj.effect("クリッピング", "下", obj.track0 / 100 * obj.h / zoom, "中心の位置を変更", mid)
+elseif obj.track1==3 then --左
+	obj.effect("クリッピング", "左", obj.track0 / 100 * obj.w / zoom, "中心の位置を変更", mid)
+elseif obj.track1==4 then --右
+	obj.effect("クリッピング", "右", obj.track0 / 100 * obj.w / zoom, "中心の位置を変更", mid)
+end
