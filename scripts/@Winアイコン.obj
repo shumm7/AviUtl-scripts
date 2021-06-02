@@ -1,0 +1,120 @@
+@砂時計
+--track0:サイズ,1,256,5
+--dialog:色1/col,local b="0x000000";色2/col,local w="0xffffff";
+
+local path = obj.getinfo("script_path").."dotdrawer.lua"
+
+if io.open(path,"r")==nil then
+	obj.setfont("MS UI Gothic", obj.track0)
+	obj.load("text", "Missing\n"..path)
+	return
+end
+d = dofile(path)
+
+local n=nil
+data = {
+	{b,b,b,b,b,b,b,b,b,b,b,b,b},
+	{b,b,w,w,w,w,w,w,w,w,w,b,b},
+	{b,b,b,b,b,b,b,b,b,b,b,b,b},
+	{n,b,w,w,w,w,w,w,w,w,w,b,n},
+	{n,b,w,w,w,w,w,w,w,w,w,b,n},
+	{n,b,w,w,b,w,b,w,b,w,w,b,n},
+	{n,b,w,w,w,b,w,b,w,w,w,b,n},
+	{n,b,b,w,w,w,b,w,w,w,b,b,n},
+	{n,n,b,b,w,w,w,w,w,b,b,n,n},
+	{n,n,n,b,b,w,b,w,b,b,n,n,n},
+	{n,n,n,n,b,b,w,b,b,n,n,n,n},
+	{n,n,n,n,b,b,w,b,b,n,n,n,n},
+	{n,n,n,b,b,w,w,w,b,b,n,n,n},
+	{n,n,b,b,w,w,b,w,w,b,b,n,n},
+	{n,b,b,w,w,w,w,w,w,w,b,b,n},
+	{n,b,w,w,w,w,b,w,w,w,w,b,n},
+	{n,b,w,w,w,b,w,b,w,w,w,b,n},
+	{n,b,w,w,b,w,b,w,b,w,w,b,n},
+	{n,b,w,b,w,b,w,b,w,b,w,b,n},
+	{b,b,b,b,b,b,b,b,b,b,b,b,b},
+	{b,b,w,w,w,w,w,w,w,w,w,b,b},
+	{b,b,b,b,b,b,b,b,b,b,b,b,b}
+}
+size = obj.track0
+d.draw_dots(data, obj.track0)
+
+
+@カーソル(矢印)
+--track0:サイズ,1,256,5
+--dialog:色1/col,local b="0x000000";色2/col,local w="0xffffff";
+
+local path = obj.getinfo("script_path").."dotdrawer.lua"
+if io.open(path,"r")==nil then
+	obj.setfont("MS UI Gothic", obj.track0)
+	obj.load("text", "Missing\n"..path)
+	return
+end
+d = dofile(path)
+
+local n = nil
+data={
+	{b},
+	{b,b},
+	{b,w,b},
+	{b,w,w,b},
+	{b,w,w,w,b},
+	{b,w,w,w,w,b},
+	{b,w,w,w,w,w,b},
+	{b,w,w,w,w,w,w,b},
+	{b,w,w,w,w,w,w,w,b},
+	{b,w,w,w,w,w,w,w,w,b},
+	{b,w,w,w,w,w,w,w,w,w,b},
+	{b,w,w,w,w,w,w,b,b,b,b,b},
+	{b,w,w,w,b,w,w,b},
+	{b,w,w,b,b,w,w,b},
+	{b,w,b,n,n,b,w,w,b},
+	{b,b,n,n,n,b,w,w,b},
+	{b,n,n,n,n,n,b,w,w,b},
+	{n,n,n,n,n,n,b,w,w,b},
+	{n,n,n,n,n,n,n,b,w,w,b},
+	{n,n,n,n,n,n,n,b,w,w,b},
+	{n,n,n,n,n,n,n,n,b,b}
+}
+d.draw_dots(data, obj.track0)
+
+
+@カーソル(手)
+--track0:サイズ,1,256,5
+--dialog:色1/col,local b="0x000000";色2/col,local w="0xffffff";
+
+local path = obj.getinfo("script_path").."dotdrawer.lua"
+if io.open(path,"r")==nil then
+	obj.setfont("MS UI Gothic", obj.track0)
+	obj.load("text", "Missing\n"..path)
+	return
+end
+d = dofile(path)
+
+
+local n = nil
+data = {
+	{n,n,n,n,n,b,b},
+	{n,n,n,n,b,w,w,b},
+	{n,n,n,n,b,w,w,b},
+	{n,n,n,n,b,w,w,b},
+	{n,n,n,n,b,w,w,b},
+	{n,n,n,n,b,w,w,b,b,b},
+	{n,n,n,n,b,w,w,b,w,w,b,b,b},
+	{n,n,n,n,b,w,w,b,w,w,b,w,w,b,b},
+	{n,n,n,n,b,w,w,b,w,w,b,w,w,b,w,b},
+	{b,b,b,n,b,w,w,b,w,w,b,w,w,b,w,w,b},
+	{b,w,w,b,b,w,w,w,w,w,w,w,w,b,w,w,b},
+	{b,w,w,w,b,w,w,w,w,w,w,w,w,w,w,w,b},
+	{n,b,w,w,b,w,w,w,w,w,w,w,w,w,w,w,b},
+	{n,n,b,w,b,w,w,w,w,w,w,w,w,w,w,w,b},
+	{n,n,b,w,w,w,w,w,w,w,w,w,w,w,w,w,b},
+	{n,n,n,b,w,w,w,w,w,w,w,w,w,w,w,w,b},
+	{n,n,n,b,w,w,w,w,w,w,w,w,w,w,w,b},
+	{n,n,n,n,b,w,w,w,w,w,w,w,w,w,w,b},
+	{n,n,n,n,b,w,w,w,w,w,w,w,w,w,w,b},
+	{n,n,n,n,n,b,w,w,w,w,w,w,w,w,b},
+	{n,n,n,n,n,b,w,w,w,w,w,w,w,w,b},
+	{n,n,n,n,n,b,b,b,b,b,b,b,b,b,b},
+}
+d.draw_dots(data, obj.track0)
