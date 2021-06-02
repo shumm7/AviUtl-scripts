@@ -4,54 +4,51 @@
 ------------------------
 「@QR」はAviUtl上でQRコードを生成することの出来るシンプルなスクリプトです。
 このスクリプトにはqrencode.luaというライブラリを使用しています。
+qrencode.lua | BSD license | https://speedata.github.io/luaqrcode/
+
+v2.0から dotdrawer.lua が必要になりました。
+https://shummg.work/downloads
 
 ＊ 動作環境
 以下の環境でテストしています。
 ・AviUtl 1.10
 ・拡張編集 0.93rc1
-・rikkymodule version2 0.1.delta
 
 ＊ 導入方法（rikky_moduleが導入されていない場合）
 １．「@QR.obj」をscriptフォルダ内に配置します。
-２．「qrencode.lua」を「@QR.obj」と同じ場所に配置します。
+２．「qrencode.lua」と「dotdrawer.lua」を「@QR.obj」と同じ場所に配置します。
 ３．カスタムオブジェクトから「@QR」を追加します。
+
+＊ その他
+・色を "nil" と指定すると、透明にできます。
+
 ]]
 
 @QR
 --track0:サイズ,1,256,5
---dialog:qrencode.lua,dir="";テキスト,local text="aviutl";色1/col,local col1="0xffffff";色2/col,local col2="0x000000";透明/chk,toggle=0;
+--dialog:テキスト,local text="aviutl";色1/col,local col1="0xffffff";色2/col,local col2="0x000000";
 
 local size = obj.track0
+local dir = {}
 
-if dir=="" or dir==nil then
-	dir = obj.getinfo("script_path").."qrencode.lua"
-end
-
-function file_exists(name)
-   local f=io.open(name,"r")
-   if f~=nil then
-		 io.close(f)
-		 return true
-	 else
-		 return false
-	 end
-end
+dir.qrencode = obj.getinfo("script_path").."qrencode.lua"
+dir.dotdrawer = obj.getinfo("script_path").."dotdrawer.lua"
 
 local function matrix_to_string(tab,white,black)
     local ret = {}
 
     for i=1,#tab + 2 do
-        ret[i] = ""
+        ret[i] = {}
     end
 
     for x=1,#tab do
         for y=1,#tab do
             if tab[x][y] > 0 then
-                ret[y + 1] = ret[y + 1] .. black
+								ret[y][x] = black
             elseif tab[x][y] < 0 then
-                ret[y + 1] = ret[y + 1] .. white
+								ret[y][x] = white
             else
-                ret[y + 1] = ret[y + 1] .. white .. black
+								ret[y][x] = nil
             end
         end
     end
@@ -59,43 +56,20 @@ local function matrix_to_string(tab,white,black)
     return ret
 end
 
-local function draw_dots(tab)
-	local height = #tab
-	local width = string.len(tab[math.floor(height/2)])
-
-	local divW = (width * size)/2
-	local divH = (height * size)/2
-
-	obj.setoption("drawtarget", "tempbuffer", width * size, height * size)
-	if toggle==0 then
-		obj.load("figure", "四角形", col1)
-		for x=1,width do
-			for y=1,height do
-				if string.sub(tab[y],x,x)=="0" then
-					obj.drawpoly((x-1)*size-divW,(y-1)*size-divH,0, x*size-divW,(y-1)*size-divH,0, x*size-divW,y*size-divH,0, (x-1)*size-divW,y*size-divH,0)
-				end
-			end
-		end
-	end
-
-	obj.load("figure", "四角形", col2)
-	for x=1,width do
-		for y=1,height do
-			if string.sub(tab[y],x,x)=="1" then
-				obj.drawpoly((x-1)*size-divW,(y-1)*size-divH,0, x*size-divW,(y-1)*size-divH,0, x*size-divW,y*size-divH,0, (x-1)*size-divW,y*size-divH,0)
-			end
-		end
-	end
-	obj.load("tempbuffer")
-
-end
-
-if file_exists(dir) then
-	qrencode = dofile(dir)
-
+if io.open(dir.qrencode,"r")~=nil then
+	qrencode = dofile(dir.qrencode)
 else
 	obj.setfont("MS UI Gothic", size)
-	obj.load("text", "qrencode.luaまでのフルパスを指定してください。\n 例：C:/Users/admin/Documents/aviutl/script/qrencode.lua")
+	obj.load("text", "Missing\n"..dir.qrencode)
+	obj.draw()
+	return
+end
+
+if io.open(dir.dotdrawer,"r")~=nil then
+	dotdrawer = dofile(dir.dotdrawer)
+else
+	obj.setfont("MS UI Gothic", size)
+	obj.load("text", "Missing\n"..dir.dotdrawer)
 	obj.draw()
 	return
 end
@@ -106,5 +80,5 @@ if not ok then
   obj.load("text", tab_or_message)
 	obj.draw()
 else
-	draw_dots(matrix_to_string(tab_or_message,"0","1"))
+	dotdrawer.draw_dots(matrix_to_string(tab_or_message,col1,col2), size)
 end
