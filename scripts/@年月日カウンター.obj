@@ -2,9 +2,15 @@
 --track0:初期値,-4383,4383,0,1
 --track1:速度,-1000,1000,0,1
 --track2:サイズ,1,256,34
---track3:表示形式,-1,10,1,1
 --check0:零点変更,0
---dialog:色/col,local col1="0xfffffff";影・縁色/col,col2=0x000000;装飾タイプ,deco=0;フォント,local font="MS UI Gothic";基準年,local _year=2020;基準月,local _month=1;基準日,local _day=1;桁数統一/chk,local digit=1;年表示/chk,local year_format=0;増減反転/chk,local invert=0;カスタム 1,local charCustomFirst="a";カスタム 2,local charCustomSecond="b";
+--dialog:フォーマット,format="yy/MM/DD";色/col,local col1="0xfffffff";影・縁色/col,col2=0x000000;装飾タイプ,deco=0;フォント,local font="MS UI Gothic";基準年,local _year=2020;基準月,local _month=1;基準日,local _day=1;増減反転/chk,local invert=0;
+
+
+--内部で値がオーバーフローするので、2038年1月19日3時14分7秒以降になるとバグります。
+--Luaの仕様なので諦めてください
+
+
+local count = 16 --置換の最大回数
 
 local function addTime(_y, _m, _d, _addition)
 	local d = {
@@ -15,15 +21,16 @@ local function addTime(_y, _m, _d, _addition)
 	local t = os.time(d)
 	result = os.date("*t", t)
 
-	return result["year"], result["month"], result["day"]
+	return result.year, result.month, result.day, result.wday
 end
 
-absolute_addition=obj.check0
-mode = math.floor(obj.track3)
-time = obj.track0+obj.time*obj.track1
+--初期値
 _year = math.floor(_year)
 _month = math.floor(_month)
 _day = math.floor(_day)
+
+absolute_addition=obj.check0
+time = obj.track0+obj.time*obj.track1 --増加量
 
 if (invert==1) then
 	time = time * -1
@@ -33,62 +40,99 @@ if(absolute_addition) then
 	time = time+4383
 end
 
-_year, _month, _day = addTime(_year, _month, _day, time)
+_year, _month, _day, _wday = addTime(_year, _month, _day, time)
 
 
-if( digit == 0 ) then
-	year = string.format("%d",_year)
-	month = string.format("%d",_month)
-	day = string.format("%d",_day)
-else
-	year = string.format("%02d",_year)
-	month = string.format("%02d",_month)
-	day = string.format("%02d",_day)
+--桁数非統一
+year = string.format("%d",_year)
+month = string.format("%d",_month)
+day = string.format("%d",_day)
+
+--桁数統一
+monthD = string.format("%02d",_month)
+dayD = string.format("%02d",_day)
+
+--年（下2桁）
+local len, year_short = string.len(year), ""
+if (len - 2 > 0) then
+	year_short = string.sub(string.format("%02d",_year), len - 1)
 end
 
-if(year_format==1) then --YY
-	local len = string.len(year)
-	if (len - 2 > 0) then
-		year = string.sub(string.format("%02d",_year), len - 1)
-	end
+--曜日
+wday = {}
+if _wday==1 then --SUN
+	wday = {
+		ww = string.format("%d",_wday),
+		WJ = "日",
+		we = "Sunday",
+		WE = "Sun"
+	}
+elseif _wday==2 then --MON
+	wday = {
+		ww = string.format("%d",_wday),
+		WJ = "月",
+		we = "Monday",
+		WE = "Mon"
+	}
+elseif _wday==3 then --TUE
+	wday = {
+		ww = string.format("%d",_wday),
+		WJ = "火",
+		we = "Tuesday",
+		WE = "Tue"
+	}
+elseif _wday==4 then --WED
+	wday = {
+		ww = string.format("%d",_wday),
+		WJ = "水",
+		we = "Wednesday",
+		WE = "Wed"
+	}
+elseif _wday==5 then --THU
+	wday = {
+		ww = string.format("%d",_wday),
+		WJ = "木",
+		we = "Thursday",
+		WE = "Thu"
+	}
+elseif _wday==6 then --FRI
+	wday = {
+		ww = string.format("%d",_wday),
+		WJ = "金",
+		we = "Friday",
+		WE = "Fri"
+	}
+elseif _wday==7 then --SAT
+	wday = {
+		ww = string.format("%d",_wday),
+		WJ = "土",
+		we = "Saturday",
+		WE = "Sat"
+	}
+
 end
+wday.wj = wday.WJ.."曜日"
+wday.wc = wday.we:upper()
+wday.WC = wday.WE:upper()
 
-if ( mode == -1 ) then
-	if charCustomFirst~=nil then
-		str = year..charCustomFirst..month
-	else
-		str = year..month
-	end
 
-	if charCustomSecond~=nil then
-		str = str..charCustomSecond..day
-	else
-		str = str..day
-	end
+--フォーマット
+str = format
+str = str:gsub("nn", string.format("%01d",time), count) --増加数
+str = str:gsub("yy", year, count) --年
+str = str:gsub("YY", year_short, count) --年（下2桁）
+str = str:gsub("mm", month, count) --月
+str = str:gsub("MM", monthD, count) --月（2桁）
+str = str:gsub("dd", day, count) --日
+str = str:gsub("DD", dayD, count) --日（2桁）
+str = str:gsub("ww", wday.ww,count) --曜日（数値）
+str = str:gsub("wj", wday.wj,count) --曜日（日曜日、月曜日、火曜日...）
+str = str:gsub("WJ", wday.WJ,count) --曜日（日、月、火...）
+str = str:gsub("we", wday.we,count) --曜日（Sunday, Monday, Tuesday...）
+str = str:gsub("WE", wday.WE,count) --曜日（Sun, Mon, Tue...）
+str = str:gsub("wc", wday.wc,count) --曜日（SUNDAY, MONDAY, TUESDAY...）
+str = str:gsub("WC", wday.WC,count) --曜日（SUN, MON, TUE...）
 
-elseif( mode == 0 ) then
-	str = string.format("%01d",time)
-elseif( mode == 1 ) then --YYYY/MM/DD
-	str = year.."/"..month.."/"..day
-elseif( mode == 2 ) then --YYYY年MM月DD日
-	str = year.."年"..month.."月"..day.."日"
-elseif( mode == 3 ) then --YYYY-MM-DD
-	str = year.."-"..month.."-"..day
-elseif( mode == 4 ) then --YYYYMMDD
-	str = year..month..day
-elseif( mode == 5 ) then --YYYY:MM:DD
-	str = year..":"..month..":"..day
-elseif( mode == 6 ) then --YYYY.MM.DD
-	str = year.."."..month.."."..day
-elseif( mode == 7 ) then --YYYY.MM.DD.
-	str = year.."."..month.."."..day.."."
-elseif( mode == 8 ) then --YYYY／MM／DD
-	str = year.."／"..month.."／"..day
-elseif( mode == 9 ) then --EEEEEEEE
-	str = "EEEEEEEE" --ご自由に変更してください。
-elseif( mode == 10 ) then --EEEEEEEE
-	str = "EEEEEEEE" --ご自由に変更してください。
-end
-
+--描画
 obj.setfont(font,obj.track2,deco,col1,col2)
 obj.load('text',str)
