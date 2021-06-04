@@ -1,5 +1,5 @@
 --[[
-カラオケテキスト v2.0 2021/06/04
+カラオケテキスト v2.1 2021/06/05
 
 ＊テスト環境
  ・AviUtl 1.10
@@ -39,7 +39,7 @@ v2.0から textmodule.dllが必要になりました！
 --check0:デバッグ,0
 --dialog:テキスト,l="これはテスト｜文章《ぶんしょう》です。";フォント,font="MS UI Gothic";縁色,edgeColor={"0xffffff", "0x000000"};縁ぼかし,edgeBokeh=10;グラデ幅,gradWidth=100;グラデ色 左,local gradColorL={"0x117ad7", "0x0f2d47"};グラデ色 右,local gradColorR={"0xffffff", "0xffffff"};左右寄せ[0-2],align=1;ルビ調整,local offset={0,0};
 
-local l = line
+local line = l
 local size, rubySize, rubyPos = obj.track0, obj.track1, offset
 require("textmodule")
 
