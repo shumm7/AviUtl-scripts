@@ -1,5 +1,5 @@
 --[[
-カラオケテキスト v2.1 2021/06/05
+カラオケテキスト v2.2 2021/06/21
 
 ＊テスト環境
  ・AviUtl 1.10
@@ -28,7 +28,6 @@ v2.0から textmodule.dllが必要になりました！
 ＊todo
 ・テキストを長文にすると、ダイアログの値が消える問題
 （外部ファイルに設定を移動させても良さそう）
-・ルビ用の記号を半角、全角両方対応にする。
 ]]
 
 @カラオケテキスト
@@ -40,8 +39,10 @@ v2.0から textmodule.dllが必要になりました！
 --dialog:テキスト,l="これはテスト｜文章《ぶんしょう》です。";フォント,font="MS UI Gothic";縁色,edgeColor={"0xffffff", "0x000000"};縁ぼかし,edgeBokeh=10;グラデ幅,gradWidth=100;グラデ色 左,local gradColorL={"0x117ad7", "0x0f2d47"};グラデ色 右,local gradColorR={"0xffffff", "0xffffff"};左右寄せ[0-2],align=1;ルビ調整,local offset={0,0};
 
 local line = l
+local adjustTempBufferWidth = 0
 local size, rubySize, rubyPos = obj.track0, obj.track1, offset
 require("textmodule")
+
 
 --文字列操作関数
 local function find(text, pattern)
@@ -73,7 +74,6 @@ local function len(text)
 	end
 end
 
-
 --ルビ位置
 local r = math.rad(obj.getvalue("rz"))
 if rubySize>size then
@@ -91,10 +91,11 @@ if find(line, "\n")~=nil then
 end
 
 local exp = ""
+local start_r = "[｜|\|]"
 if textmodule==nil then
 	exp = "(｜.-《.-》)"
 else
-	exp = "(｜.*?《.*?》)"
+	exp = "("..start_r..".*?《.*?》)"
 end
 
 local text, ruby = line, {}
@@ -103,14 +104,18 @@ if find(text, exp)~=nil then
 		s1, s2 = find(text, exp)
 		temp = sub(text, s1, s2)
 
-		local a1, a2 = find(temp, "｜.")
+		local a1, a2 = find(temp, start_r..".")
 		local b1, b2 = find(temp, "《.")
 
 		t = sub(temp, a2, find(temp, "《")-1)
 		r = sub(temp, b2, find(temp, "》")-1)
 
-		text = gsub(text, temp, t, 1)
+		--text = gsub(text, temp, t, 1)
+		text = sub(text, 1, s1-1)..t..sub(text,s2+1,len(text))
+
 		table.insert(ruby, {t, r, s1, s1 + len(t) - 1})
+
+		adjustTempBufferWidth = math.max(adjustTempBufferWidth, rubySize*len(r))
 	until find(text, exp)==nil
 end
 
@@ -162,7 +167,7 @@ end
 obj.setfont(font, obj.track0, 0, "0xffffff")
 obj.load("text", text)
 local sizeX, sizeY = obj.w, obj.h
-obj.setoption("drawtarget","tempbuffer",sizeX + math.abs(rubyPos[1]), sizeY + size*2 + rubySize*2 + math.abs(rubyPos[2]))
+obj.setoption("drawtarget","tempbuffer",sizeX + math.abs(rubyPos[1])+adjustTempBufferWidth, sizeY + size*2 + rubySize*2 + math.abs(rubyPos[2]))
 obj.draw(0,0)
 
 --ルビ描画
@@ -185,19 +190,19 @@ end
 obj.copybuffer("cache:text", "tmp") --objからcacheへコピー
 
 --右側テキスト
-obj.setoption("drawtarget","tempbuffer", sizeX+obj.track2*2+math.abs(rubyPos[1]), sizeY+obj.track2*2+rubySize*2+size*2+math.abs(rubyPos[2]))
+obj.setoption("drawtarget","tempbuffer", sizeX+obj.track2*2+math.abs(rubyPos[1])+adjustTempBufferWidth, sizeY+obj.track2*2+rubySize*2+size*2+math.abs(rubyPos[2]))
 obj.copybuffer("obj", "cache:text") --cacheからobjにコピー
 obj.effect("グラデーション", "幅", gradWidth, "color", gradColorR[1], "color2", gradColorR[2])
 obj.effect("縁取り", "サイズ", obj.track2, "color", edgeColor[2], "ぼかし", edgeBokeh)
 obj.effect("クリッピング", "左", obj.track3 / 100 * obj.w)
-obj.draw(-obj.w/2 + sizeX/2 + obj.track2 + math.abs(rubyPos[1])/2)
+obj.draw(-obj.w/2 + sizeX/2 + obj.track2 + math.abs(rubyPos[1])/2 + adjustTempBufferWidth/2)
 
 --左側テキスト
 obj.copybuffer("obj", "cache:text") --tempbufferからobjにコピー
 obj.effect("グラデーション", "幅", gradWidth, "color", gradColorL[1], "color2", gradColorL[2])
 obj.effect("縁取り", "サイズ", obj.track2, "color", edgeColor[1], "ぼかし", edgeBokeh)
 obj.effect("クリッピング", "右", (1 - obj.track3 / 100) * obj.w)
-obj.draw(obj.w/2 - sizeX/2 - obj.track2 - math.abs(rubyPos[1])/2)
+obj.draw(obj.w/2 - sizeX/2 - obj.track2 - math.abs(rubyPos[1])/2 + adjustTempBufferWidth/2)
 
 
 obj.load("tempbuffer")
