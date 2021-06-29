@@ -82,3 +82,36 @@
 `string`内の半角文字を全角文字に変換して、返します。  
 `m`（ブーリアン値）を指定すると、半角スペースを全角スペースに変換するかどうかを指定できます。
 `m`を指定しない場合は、`true`となります。  
+
+### `info = getinfo(str, index)`
+textmoduleの情報を取得します。  
+`index`を指定しない場合は、`1`となります。  
+
+- `str="name"` モジュールの名前（例：`textmodule`）  
+- `str="version"`  
+ - `index=1` textmoduleのバージョン（例：`0.0.3`）  
+ - `index=2` textmoduleのバージョンの通し番号（例：`3`）  
+
+### `t = time(table)`
+テーブル`table`で指定された時刻を表す数値を返します。  
+`nil`もしくはなにも指定しない場合は、現在時刻を返します。  
+`table`には最低限`year`、`month`、`day`の要素がなければなりません。
+テーブルの構造は、下記の`date`関数の項目を確認してください。
+
+### `t = date(format, time)`
+時間を表す数値`time`を`format`をもとに、文字列へ変換します。  
+`format`の書式は[こちら](https://docs.microsoft.com/ja-jp/cpp/c-runtime-library/reference/strftime-wcsftime-strftime-l-wcsftime-l?view=msvc-160)を参照してください。  
+
+`format`が`"*t"`のときは、以下の構造で表されるテーブルで値を返します。  
+ただし、`format`の先頭1文字が`"!"`の場合は、UTC（世界協定時刻）で計算します。  
+
+#### テーブルの構造
+- `year` 年
+- `month` 月
+- `day` 日
+- `hour` 時間
+- `min` 分
+- `sec` 秒
+- `wday` 曜日（1が月曜日）
+- `yday` 年内の通し日数（1-366）
+- `isdst` 夏時間フラグ（数値）

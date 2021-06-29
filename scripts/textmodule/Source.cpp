@@ -6,6 +6,14 @@
 #include <locale.h>
 #include <string>
 #include <windows.h>
+#include <chrono>
+#include <time.h>
+
+#define module_name "textmodule"
+#define version "0.0.3"
+#define version_num 3
+
+using namespace std::chrono;
 
 
 std::string WstrToStr(std::wstring str) {
@@ -333,6 +341,41 @@ std::wstring toHalfwidth(std::wstring string, bool invert, bool space) {
 	return string;
 }
 
+int getinfo(lua_State* L) {
+	int i;
+	std::wstring t;
+
+	if (lua_type(L, 1) == LUA_TSTRING) {
+		t = StrToWstr(lua_tostring(L, 1));
+	}
+	else {
+		return 0;
+	}
+
+	if (lua_type(L, 2) == LUA_TNUMBER) {
+		i = lua_tonumber(L, 2);
+	}
+	else {
+		i = 1;
+	}
+
+	if (t == L"version") {
+		if (i == 1) {
+			lua_pushstring(L, version);
+			return 1;
+		}
+		else if (i == 2) {
+			lua_pushinteger(L, version_num);
+			return 1;
+		}
+	}
+	else if(t == L"name") {
+		lua_pushstring(L, module_name);
+		return 1;
+	}
+
+	return 0;
+}
 
 int find(lua_State* L) {
 	if (lua_type(L, 1) != LUA_TSTRING) {
@@ -713,7 +756,130 @@ int fullwidth(lua_State* L) {
 }
 
 
+int time(lua_State* L) {
+	if (lua_type(L, 1) == LUA_TNIL || lua_type(L, 1) == -1) {
+		auto now = std::chrono::system_clock::now();
+		__time64_t now_c = std::chrono::system_clock::to_time_t(now);
+		
+		lua_pushnumber(L, now_c);
+		return 1;
+	}
+	else if (lua_type(L, 1) == LUA_TTABLE) {
+		lua_getfield(L, 1, "year");
+		lua_getfield(L, 1, "month");
+		lua_getfield(L, 1, "day");
+		lua_getfield(L, 1, "hour");
+		lua_getfield(L, 1, "min");
+		lua_getfield(L, 1, "sec");
+
+		struct tm Time = {0, 0, 0, 1, 0, 0};
+		__time64_t res;
+		
+		if (lua_type(L, -6) == LUA_TNUMBER) //year
+			Time.tm_year = lua_tonumber(L, -6) - 1900;
+		else
+			return 0;
+		if (lua_type(L, -5) == LUA_TNUMBER) //month
+			Time.tm_mon = lua_tonumber(L, -5) - 1;
+		else
+			return 0;
+		if (lua_type(L, -4) == LUA_TNUMBER) //day
+			Time.tm_mday = lua_tonumber(L, -4);
+		else
+			return 0;
+
+		if (lua_type(L, -3) == LUA_TNUMBER) //hour
+			Time.tm_hour = lua_tonumber(L, -3);
+		if (lua_type(L, -2) == LUA_TNUMBER) //min
+			Time.tm_min = lua_tonumber(L, -2);
+		if (lua_type(L, -1) == LUA_TNUMBER) //sec
+			Time.tm_sec = lua_tonumber(L, -1);
+
+		res = _mktime64(&Time);
+		lua_pushnumber(L, res);
+		return 1;
+	}
+
+	return 0;
+}
+
+int date(lua_State* L) {
+	std::wstring format;
+	__time64_t time;
+	struct tm time_st;
+	bool utc = false;
+
+	if (lua_type(L, 1) == LUA_TNIL || lua_type(L, 1) == -1) {
+		format = L"%c";
+	}
+	else if (lua_type(L, 1) == LUA_TSTRING) {
+		format = StrToWstr(lua_tostring(L, 1));
+	}
+	else {
+		return 0;
+	}
+
+	//UTC
+	if (WstrToStr(format)[0] == '!') {
+		utc = true;
+		format = format.substr(1);
+	}
+
+	if (lua_type(L, 2) == LUA_TNIL || lua_type(L, 2) == -1) {
+		auto now = std::chrono::system_clock::now();
+		time = std::chrono::system_clock::to_time_t(now);
+	}
+	else if (lua_type(L, 2) == LUA_TNUMBER) {
+		time = lua_tonumber(L, 2);
+	}
+	else {
+		return 0;
+	}
+
+	if (utc) {
+		_gmtime64_s(&time_st, &time);
+	}
+	else {
+		_localtime64_s(&time_st, &time);
+	}
+
+	if (format == L"*t") {
+		lua_newtable(L);
+
+		lua_pushnumber(L, (long long)time_st.tm_year + (long long)1900);
+		lua_setfield(L, -2, "year");
+		lua_pushnumber(L, (long long)time_st.tm_mon+ (long long)1);
+		lua_setfield(L, -2, "month");
+		lua_pushnumber(L, time_st.tm_mday);
+		lua_setfield(L, -2, "day");
+		lua_pushnumber(L, time_st.tm_hour);
+		lua_setfield(L, -2, "hour");
+		lua_pushnumber(L, time_st.tm_min);
+		lua_setfield(L, -2, "min");
+		lua_pushnumber(L, time_st.tm_sec);
+		lua_setfield(L, -2, "sec");
+		lua_pushnumber(L, (long long)time_st.tm_wday + (long long)1);
+		lua_setfield(L, -2, "wday");
+		lua_pushnumber(L, (long long)time_st.tm_yday + (long long)1);
+		lua_setfield(L, -2, "yday");
+		lua_pushnumber(L, time_st.tm_isdst);
+		lua_setfield(L, -2, "isdst");
+
+		return 1;
+	}
+	else {
+		wchar_t buffer[128];
+		wcsftime(buffer, 128, format.c_str(), &time_st);
+		lua_pushstring(L, WstrToStr(buffer).c_str());
+		return 1;
+	}
+
+}
+
+
 static luaL_Reg functions[] = {
+	{"getinfo", getinfo},
+
 	{"find", find},
 	{"sub", sub},
 	{"gsub", gsub},
@@ -725,10 +891,14 @@ static luaL_Reg functions[] = {
 	{"byte", wbyte},
 	{"char", wchar},
 	{"gmatch", gmatch},
+
 	{"hiragana", hiragana},
 	{"katakana", katakana},
 	{"halfwidth", halfwidth},
 	{"fullwidth", fullwidth},
+
+	{"time", time},
+	{"date", date},
 	{ nullptr, nullptr }
 };
 

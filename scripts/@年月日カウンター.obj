@@ -6,8 +6,10 @@
 --dialog:フォーマット,format="yy/MM/DD";色/col,local col1="0xfffffff";影・縁色/col,col2=0x000000;装飾タイプ,deco=0;フォント,local font="MS UI Gothic";基準年,local _year=2020;基準月,local _month=1;基準日,local _day=1;増減反転/chk,local invert=0;
 
 
---内部で値がオーバーフローするので、2038年1月19日3時14分7秒以降になるとバグります。
---Luaの仕様なので諦めてください
+require("textmodule")
+if textmodule.getinfo("version", 2)<3 then
+	return
+end
 
 
 local count = 16 --置換の最大回数
@@ -16,10 +18,10 @@ local function addTime(_y, _m, _d, _addition)
 	local d = {
 	 year = _y,
 	 month = _m,
-	 day = _d + _addition
+	 day = _d
 	}
-	local t = os.time(d)
-	result = os.date("*t", t)
+	local t = textmodule.time(d)
+	result = textmodule.date("*t", t + _addition)
 
 	return result.year, result.month, result.day, result.wday
 end
