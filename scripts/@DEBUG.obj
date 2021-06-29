@@ -1,0 +1,24 @@
+@DEBUG
+--track0:サイズ,1,512,34,1
+--dialog:色/col,color="0xffffff";フォント,font="MS UI Gothic";
+str = ""
+
+local function debug(msg)
+	if type(msg)==type("") or type(msg)==type(0) then
+		debug_print(msg)
+		str = str.."\n"..msg
+	else
+		a = type(msg)
+		debug_print("[ERROR]"..a)
+		str = str.."\n".."[ERROR]"..a
+	end
+end
+
+-- CODE HERE
+
+
+
+-- CODE END
+obj.setfont(font, obj.track0, 0, color)
+obj.load("text", str)
+obj.draw()
