@@ -53,8 +53,8 @@ Newカラオケテキスト v1.0 2021/06/22
 --track1:縁サイズ,0,100,10,1
 --track2:グラデ幅,0,1000,100,1
 --track3:進行度,0,100,0,0.01
---check0:デバッグ,0
---dialog:テンプレート,template="default";ルビ調整,local offset={0,0};
+--check0:ファイル読み込み,1
+--dialog:テンプレート,template="default";ルビ調整,local offset={0,0};デバッグ/chk,local debug=0;
 
 require("textmodule")
 
@@ -79,12 +79,14 @@ local function gsub(text, pattern, repl, n) return textmodule.gsub(text, pattern
 local function len(text)                    return textmodule.len(text) end
 
 --テンプレート読み込み
-local dir = obj.getinfo("script_path").."karaoke_text\\"..template..".lua"
-if io.open(dir,"r")~=nil then
-	dofile(dir)
-	notemplateflag=false
-else
-	notemplateflag=true
+if obj.check0 then
+	local dir = obj.getinfo("script_path").."karaoke_text\\"..template..".lua"
+	if io.open(dir,"r")~=nil then
+		dofile(dir)
+		notemplateflag=false
+	else
+		notemplateflag=true
+	end
 end
 
 edgeBokeh, edgeColor, gradColor = data.edgeBokeh, data.edgeColor, data.gradColor
@@ -98,25 +100,19 @@ if data.edgeSize~=nil then edgeSize = data.edgeSize end
 if data.gradWidth~=nil then gradWidth = data.gradWidth end
 
 --左右寄せ　上下寄せ
-local align
-if align_raw==0 then align={s=0,x=0,y=0}
-elseif align_raw==1 then align={s=0,x=1,y=0}
-elseif align_raw==2 then align={s=0,x=2,y=0}
-elseif align_raw==3 then align={s=0,x=0,y=1}
-elseif align_raw==4 then align={s=0,x=1,y=1}
-elseif align_raw==5 then align={s=0,x=2,y=1}
-elseif align_raw==6 then align={s=0,x=0,y=2}
-elseif align_raw==7 then align={s=0,x=1,y=2}
-elseif align_raw==8 then align={s=0,x=2,y=2}
-elseif align_raw==9 then align={s=1,x=2,y=0}
-elseif align_raw==10 then align={s=1,x=2,y=1}
-elseif align_raw==11 then align={s=1,x=2,y=2}
-elseif align_raw==12 then align={s=1,x=1,y=0}
-elseif align_raw==13 then align={s=1,x=1,y=1}
-elseif align_raw==14 then align={s=1,x=1,y=2}
-elseif align_raw==15 then align={s=1,x=0,y=0}
-elseif align_raw==16 then align={s=1,x=0,y=1}
-elseif align_raw==17 then align={s=1,x=0,y=2}
+local align = {s=0,x=0,y=0}
+if align_raw<9 then
+	align={
+		s=0,
+		x=align_raw%3,
+		y=math.floor(align_raw/3)
+	}
+elseif align_raw>=9 then
+	align={
+		s=1,
+		x=2-math.floor(align_raw/3),
+		y=align_raw%3
+	}
 end
 
 --ルビ位置
@@ -134,15 +130,10 @@ if find(line, "\n")~=nil then
 	lnflag=true
 end
 
-local exp = ""
 local start_r = "[｜|\|]"
-if textmodule==nil then
-	exp = "(｜.-《.-》)"
-else
-	exp = "("..start_r..".*?《.*?》)"
-end
-
+local exp = "("..start_r..".*?《.*?》)"
 local text, ruby = line, {}
+
 if find(text, exp)~=nil then
 	repeat
 		s1, s2 = find(text, exp)
@@ -166,7 +157,7 @@ if find(text, exp)~=nil then
 end
 
 --情報表示
-if obj.check0 then
+if debug==1 then
 	obj.setfont(font, size, 0, "0xffffff")
 	local msg = ""
 
