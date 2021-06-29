@@ -18,10 +18,10 @@ local function addTime(_y, _m, _d, _addition)
 	local d = {
 	 year = _y,
 	 month = _m,
-	 day = _d
+	 day = _d + _addition
 	}
 	local t = textmodule.time(d)
-	result = textmodule.date("*t", t + _addition)
+	result = textmodule.date("*t", t)
 
 	return result.year, result.month, result.day, result.wday
 end
