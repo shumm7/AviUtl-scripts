@@ -231,3 +231,33 @@ elseif div<0 then
 		obj.zoom = checkflow((zoom-tzoom)/100)
 	end
 end
+
+
+@TAŒðŒÝ“§–¾“x
+--track0:“§–¾“x,0,100,0
+--track3:ŠÔŠu,-100,100,1,1
+--check0:”½“],0
+
+local alpha = 1 - obj.track0/100
+local x, y, z = obj.ox, obj.oy, obj.oz
+local rev = obj.check0
+local div = obj.track3
+local n, m = obj.index, obj.num
+
+if div<0 then
+	rev = not(rev)
+end
+
+if m==0 or m==1 or div==0 then
+	obj.alpha = alpha
+elseif rev==false then
+	local p = math.floor(n/div)+1
+	if p%2==1 then
+		obj.alpha = alpha
+	end
+elseif rev then
+	local p = math.floor((m-n)/div)+1
+	if p%2==1 then
+		obj.alpha = alpha
+	end
+end

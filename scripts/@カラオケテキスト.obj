@@ -1,17 +1,14 @@
 --[[
-カラオケテキスト v2.3 2021/06/21
+カラオケテキスト v2.4 2021/06/22
 
 ＊テスト環境
  ・AviUtl 1.10
  ・exedit 0.93rc1
-
+ ・textmodule v0.0.2
 
 ＊導入方法
-v2.0から textmodule.dllが必要になりました！
-※なくても動きますが、システム文字を一部に含む文字が入ると、正常に動かない可能性があります。
-　例：ー、ゼ、ゾ など
 
- 1.「@カラオケテキスト.obj」をscriptフォルダ or その直下のフォルダに入れる
+ 1.「@カラオケテキスト.obj」と「karaoke_text」フォルダ を scriptフォルダ or その直下のフォルダに入れる
  2.「textmodule.dll」を同じ場所に入れる
  3.カスタムオブジェクトから「カラオケテキスト」を選択
 
@@ -19,15 +16,27 @@ v2.0から textmodule.dllが必要になりました！
 ＊使い方
 設定ダイアログの「テキスト」に表示したい歌詞を入力してください。
 ｜文章《ぶんしょう》のようにすると、ふりがなを付けることができます。
-ふりがなの位置は、「ルビ調整」で相対的にずらせます。
+このとき、「｜」の記号は全角「｜」半角「|」どちらでも構いません。
 
 トラックバーの「進行度」を移動させると、色が部分的に変わります。
 （直線移動と中間点を使用するといいかもしれません）
 
+グラデーションや縁取りの色などは、karaoke_textフォルダに入れたテンプレート（xxx.lua）から変更できます（設定ウィンドウからは変更できません）。
+また、サイズや左右寄せといった値も、オーバーライドして指定することができます。
+ダイアログの「テンプレート」にファイル名を入力すると、そのテンプレートを適用します。
 
-＊todo
-・テキストを長文にすると、ダイアログの値が消える問題
-（外部ファイルに設定を移動させても良さそう）
+＊よくある質問
+　Q.ルビがズレてしまいます
+　A.設定ダイアログの「ルビ調整」から、ルビの位置を調整してください。
+　　テンプレートからも、この値を変更することができます。
+
+　Q.テンプレートが認識されません
+　A.karaoke_textフォルダの中に、xxx.luaが入っているかどうか確認してください。
+　　karaoke_textフォルダは、Newカラオケテキスト.anmと同じ場所に配置してください。
+　　ダイアログからファイル名を入力しますが、このとき拡張子は不要です。
+
+　Q.文字のサイズが変わりません
+　A.使用しているテンプレートが、値をオーバーライドしていないか確認してください。
 ]]
 
 @カラオケテキスト
@@ -35,43 +44,52 @@ v2.0から textmodule.dllが必要になりました！
 --track1:ルビサイズ,1,512,16,1
 --track2:縁サイズ,0,100,10,1
 --track3:進行度,0,100,0,0.01
---check0:デバッグ,0
---dialog:テキスト,l="これはテスト｜文章《ぶんしょう》です。";フォント,font="MS UI Gothic";縁色,edgeColor={"0xffffff", "0x000000"};縁ぼかし,edgeBokeh=10;グラデ幅,gradWidth=100;グラデ色 左,local gradColorL={"0x117ad7", "0x0f2d47"};グラデ色 右,local gradColorR={"0xffffff", "0xffffff"};左右寄せ[0-2],align=1;ルビ調整,local offset={0,0};
+--check0:ファイル読み込み,1
+--dialog:テキスト,l="これはテスト｜文章《ぶんしょう》です。";フォント,font="MS UI Gothic";テンプレート,template="default";左右寄せ[0-17],align_raw=4;ルビ調整,local offset={0,0};デバッグ/chk,local debug=0;
 
 local line = l
 local adjustTempBufferWidth = 0
-local size, rubySize, rubyPos = obj.track0, obj.track1, offset
+local size, rubySize, rubyPos, edgeSize, gradWidth = obj.track0, obj.track1, offset, obj.track2, 100
+local progress = obj.track3
+local lnflag, notemplateflag = false, false
 require("textmodule")
 
 
 --文字列操作関数
-local function find(text, pattern)
-	if textmodule==nil then
-		return string.find(text, pattern)
+local function find(text, pattern) return textmodule.find(text, pattern) end
+local function sub(text, s, e) return textmodule.sub(text, s, e) end
+local function gsub(text, pattern, repl, n) return textmodule.gsub(text, pattern, repl, n) end
+local function len(text) return textmodule.len(text) end
+
+--テンプレート読み込み
+if obj.check0 then
+	local dir = obj.getinfo("script_path").."karaoke_text\\"..template..".lua"
+	if io.open(dir,"r")~=nil then
+		dofile(dir)
+		notemplateflag=false
 	else
-		return textmodule.find(text, pattern)
+		notemplateflag=true
 	end
 end
-local function sub(text, s, e)
-	if textmodule==nil then
-		return string.sub(text, s, e)
-	else
-		return textmodule.sub(text, s, e)
-	end
-end
-local function gsub(text, pattern, repl, n)
-	if textmodule==nil then
-		return string.gsub(text, pattern, repl, n)
-	else
-		return textmodule.gsub(text, pattern, repl, n)
-	end
-end
-local function len(text)
-	if textmodule==nil then
-		return string.len(text)
-	else
-		return textmodule.len(text)
-	end
+
+edgeBokeh, edgeColor, gradColor = data.edgeBokeh, data.edgeColor, data.gradColor
+if data.font~=nil then font = data.font end
+if data.rubyOffset[1]~=nil and data.rubyOffset~=nil then offset[1] = data.rubyOffset[1] end
+if data.rubyOffset[2]~=nil and data.rubyOffset~=nil then offset[2] = data.rubyOffset[2] end
+if data.align~=nil then align_raw = data.align end
+if data.size~=nil then size = data.size end
+if data.rubySize~=nil then rubySize = data.rubySize end
+if data.edgeSize~=nil then edgeSize = data.edgeSize end
+if data.gradWidth~=nil then gradWidth = data.gradWidth end
+
+--左右寄せ
+local align = {s=0,x=0,y=0}
+if align_raw<9 then
+	align={
+		s=0,
+		x=align_raw%3,
+		y=math.floor(align_raw/3)
+	}
 end
 
 --ルビ位置
@@ -84,7 +102,6 @@ if rubyPos==nil or #rubyPos<2 then
 end
 
 --テキスト抽出
-local lnflag = false
 if find(line, "\n")~=nil then
 	line = gsub(line, "\n", "")
 	lnflag=true
@@ -120,7 +137,7 @@ if find(text, exp)~=nil then
 end
 
 --情報表示
-if obj.check0 then
+if debug==1 then
 	obj.setfont(font, obj.track0, 0, "0xffffff")
 	local msg = ""
 
@@ -133,15 +150,13 @@ if obj.check0 then
 	end
 
 	--INFO
+	msg = msg.."[INFO]Template "..template..".lua\n"
+	msg = msg.."[INFO]Font Family "..font.."\n"
 	msg = msg.."[INFO]Ruby Offset ("..tostring(rubyPos[1])..","..tostring(rubyPos[2])..")\n"
-	if align==0 then
-		msg = msg.."[INFO]Align Left 0\n"
-	elseif align==2 then
-		msg = msg.."[INFO]Align Right 2\n"
-	else
-		msg = msg.."[INFO]Align Center 1\n"
-	end
-	msg = msg.."[INFO]Progress "..tostring(obj.track3/100).."\n"
+	msg = msg.."[INFO]Align "..tostring(align_raw).."\n"
+	msg = msg.."[INFO]Progress "..tostring(progress/100).."\n"
+	msg = msg.."[INFO]Size (T:"..tostring(size).." R:"..tostring(rubySize)..")\n"
+
 	--WARN
 	if lnflag then
 		msg = msg.."[WARN]\"\\n\" may not be used\n"
@@ -149,10 +164,14 @@ if obj.check0 then
 	if len(text)==0 then
 		msg = msg.."[WARN]No Text\n"
 	end
-	--TEXT MODULE
+	if notemplateflag then
+		msg = msg.."[WARN]Template("..template..".lua) is missing\n"
+	end
+	--MODULE
 	if textmodule==nil then
 		msg = msg.."[WARN]textmodule.dll is missing\n"
 	end
+
 
 	obj.load("text", msg)
 	obj.draw()
@@ -190,29 +209,37 @@ end
 obj.copybuffer("cache:text", "tmp") --objからcacheへコピー
 
 --右側テキスト
-obj.setoption("drawtarget","tempbuffer", sizeX+obj.track2*2+math.abs(rubyPos[1])+adjustTempBufferWidth, sizeY+obj.track2*2+rubySize*2+size*2+math.abs(rubyPos[2]))
+obj.setoption("drawtarget","tempbuffer", sizeX+edgeSize*2+math.abs(rubyPos[1])+adjustTempBufferWidth, sizeY+edgeSize*2+rubySize*2+size*2+math.abs(rubyPos[2]))
 obj.copybuffer("obj", "cache:text") --cacheからobjにコピー
-obj.effect("グラデーション", "幅", gradWidth, "color", gradColorR[1], "color2", gradColorR[2])
-obj.effect("縁取り", "サイズ", obj.track2, "color", edgeColor[2], "ぼかし", edgeBokeh)
-obj.effect("クリッピング", "左", obj.track3 / 100 * obj.w)
-obj.draw(-obj.w/2 + sizeX/2 + obj.track2 + math.abs(rubyPos[1])/2 + adjustTempBufferWidth/2)
+obj.effect("グラデーション", "幅", gradWidth, "color", gradColor.right[1], "color2", gradColor.right[2])
+obj.effect("縁取り", "サイズ", edgeSize, "color", edgeColor.right, "ぼかし", edgeBokeh)
+obj.effect("クリッピング", "左", progress / 100 * obj.w)
+obj.draw(-obj.w/2 + sizeX/2 + edgeSize + math.abs(rubyPos[1])/2 + adjustTempBufferWidth/2)
 
 --左側テキスト
 obj.copybuffer("obj", "cache:text") --tempbufferからobjにコピー
-obj.effect("グラデーション", "幅", gradWidth, "color", gradColorL[1], "color2", gradColorL[2])
-obj.effect("縁取り", "サイズ", obj.track2, "color", edgeColor[1], "ぼかし", edgeBokeh)
-obj.effect("クリッピング", "右", (1 - obj.track3 / 100) * obj.w)
-obj.draw(obj.w/2 - sizeX/2 - obj.track2 - math.abs(rubyPos[1])/2 - adjustTempBufferWidth/2)
-
+obj.effect("グラデーション", "幅", gradWidth, "color", gradColor.left[1], "color2", gradColor.left[2])
+obj.effect("縁取り", "サイズ", edgeSize, "color", edgeColor.left, "ぼかし", edgeBokeh)
+obj.effect("クリッピング", "右", (1 - progress / 100) * obj.w)
+obj.draw(obj.w/2 - sizeX/2 - edgeSize - math.abs(rubyPos[1])/2 - adjustTempBufferWidth/2)
 
 obj.load("tempbuffer")
 obj.draw()
 
 local r = math.rad(obj.rz)
-if align==0 then
-	obj.ox = obj.ox + (sizeX/2 * math.cos(r))
-	obj.oy = obj.oy + (sizeX/2 * math.sin(r))
-elseif align==2 then
-	obj.ox = obj.ox - (sizeX/2 * math.cos(r))
-	obj.oy = obj.oy - (sizeX/2 * math.sin(r))
+if align.s==0 then --横書き
+	if align.x==0 then --左寄せ
+		obj.ox = obj.ox + (sizeX/2 * math.cos(r))
+		obj.oy = obj.oy + (sizeX/2 * math.sin(r))
+	elseif align.x==2 then --右寄せ
+		obj.ox = obj.ox - (sizeX/2 * math.cos(r))
+		obj.oy = obj.oy - (sizeX/2 * math.sin(r))
+	end
+	if align.y==0 then --上寄せ
+		obj.ox = obj.ox + (sizeY/2 * -math.sin(r))
+		obj.oy = obj.oy + (sizeY/2 * math.cos(r))
+	elseif align.y==2 then --下寄せ
+		obj.ox = obj.ox - (sizeY/2 * -math.sin(r))
+		obj.oy = obj.oy - (sizeY/2 * math.cos(r))
+	end
 end
