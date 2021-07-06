@@ -8,10 +8,11 @@
 #include <windows.h>
 #include <chrono>
 #include <time.h>
+#include <codecvt>
 
 #define module_name "textmodule"
-#define version "0.0.3"
-#define version_num 3
+#define version "0.1.0"
+#define version_num 4
 
 using namespace std::chrono;
 
@@ -55,6 +56,64 @@ std::wstring _jreplace(std::wstring String1, std::wstring String2, std::wstring 
 	}
 
 	return String1;
+}
+
+unsigned long long UnicodeToUTF8(unsigned long long code) {
+
+	std::string bin;
+	unsigned int mask = (int)1 << (sizeof(unsigned int) * CHAR_BIT - 1);
+	do bin += (mask & code ? '1' : '0');
+	while (mask >>= 1);
+	int m = bin.size();
+
+	std::string ret;
+
+	if (0x0000 <= code && code <= 0x007F) {
+		ret = "0" + bin.substr(m - 7, 7);
+	}
+	else if (0x0080 <= code && code <= 0x07FF) {
+		ret = "110" + bin.substr(m - 11, 5) + "10" + bin.substr(m - 6, 6);
+	}
+	else if (0x0890 <= code && code <= 0xFFFF) {
+		ret = "1110" + bin.substr(m - 16, 4) + "10" + bin.substr(m - 12, 6) + "10" + bin.substr(m - 6, 6);
+	}
+	else if (0x10000 <= code && code <= 0x10FFFF) {
+		ret = "11110" + bin.substr(m - 21, 3) + "10" + bin.substr(m - 18, 6) + "10" + bin.substr(m - 12, 6) + "10" + bin.substr(m - 6, 6);
+	}
+	else {
+		return -1;
+	}
+
+	return std::stoull(ret, 0, 2);
+}
+
+unsigned long long UTF8ToUnicode(unsigned long long code) {
+
+	std::string bin;
+	unsigned int mask = (int)1 << (sizeof(unsigned int) * CHAR_BIT - 1);
+	do bin += (mask & code ? '1' : '0');
+	while (mask >>= 1);
+	int m = bin.size();
+
+	std::string ret;
+
+	if (0x0000 <= code && code <= 0x007F) { //U+0000 - U+007F
+		ret = bin.substr(m - 7, 7);
+	}
+	else if (0x0080 <= code && code <= 0xDFBF) { //U+0080 - U+07FF
+		ret = bin.substr(m - 13, 5) + bin.substr(m - 6, 6);
+	}
+	else if (0xE08080 <= code && code <= 0xEFBFBF) { //U+0800 - U+FFFF
+		ret = bin.substr(m - 20, 4) + bin.substr(m - 14, 6) + bin.substr(m - 6, 6);
+	}
+	else if (0xF0808080 <= code && code <= 0xF7BFBFBF) { //U+10000 - U+10FFFF
+		ret = bin.substr(m - 27, 3) + bin.substr(m - 22, 6) + bin.substr(m - 14, 6) + bin.substr(m - 6, 6);
+	}
+	else {
+		return -1;
+	}
+
+	return std::stoull(ret, 0, 2);
 }
 
 std::wstring toKatakana(std::wstring string, bool invert)
@@ -603,7 +662,7 @@ int wbyte(lua_State* L) {
 
 	for (int k = i; k <= j; k++)
 	{
-		int c = text[k];
+		unsigned long long c = text[k];
 		lua_pushinteger(L, c);
 	}
 	return j - i + 1;
@@ -611,13 +670,13 @@ int wbyte(lua_State* L) {
 
 int wchar(lua_State * L) {
 		int cnt = 1;
-		std::vector<int> list;
+		std::vector<unsigned long long> list;
 
 		while (true) {
 			int tp = lua_type(L, cnt);
 
 			if (tp == LUA_TNUMBER) {
-				list.push_back(lua_tointeger(L, cnt));
+				list.push_back(lua_tonumber(L, cnt));
 			}
 			else if (tp == LUA_TNIL || tp == -1) {
 				break;
@@ -755,7 +814,6 @@ int fullwidth(lua_State* L) {
 	return 1;
 }
 
-
 int time(lua_State* L) {
 	if (lua_type(L, 1) == LUA_TNIL || lua_type(L, 1) == -1) {
 		auto now = std::chrono::system_clock::now();
@@ -876,6 +934,105 @@ int date(lua_State* L) {
 
 }
 
+int utf8_byte(lua_State* L) {
+	if (lua_type(L, 1) != LUA_TSTRING) {
+		return 0;
+	}
+	std::wstring text = StrToWstr(lua_tostring(L, 1));
+	int i;
+	int j;
+	int length = text.length();
+
+	if (lua_type(L, 2) == LUA_TNUMBER) {
+		i = lua_tointeger(L, 2) - 1;
+	}
+	else if (lua_type(L, 2) == LUA_TNIL || lua_type(L, 2) == -1) {
+		i = 0;
+	}
+	else {
+		return 0;
+	}
+
+	if (lua_type(L, 3) == LUA_TNUMBER) {
+		j = lua_tointeger(L, 3) - 1;
+	}
+	else if (lua_type(L, 3) == LUA_TNIL || lua_type(L, 3) == -1) {
+		j = i;
+	}
+	else {
+		return 0;
+	}
+
+	if (length < 1) {
+		return 0;
+	}
+	if (j < i) {
+		return 0;
+	}
+	if (i >= length) {
+		return 0;
+	}
+	if (j >= length) {
+		j = length - 1;
+	}
+
+	for (int k = i; k <= j; k++)
+	{
+		int c = text[k];
+		auto r = UnicodeToUTF8(c);
+		if (r != -1) {
+			lua_pushinteger(L, r);
+		}
+		else {
+			return 0;
+		}
+
+	}
+	return j - i + 1;
+}
+
+int utf8_char(lua_State* L) {
+	int cnt = 1;
+	std::vector<unsigned long long> list;
+
+	while (true) {
+		int tp = lua_type(L, cnt);
+
+		if (tp == LUA_TNUMBER) {
+			unsigned long long r = UTF8ToUnicode(lua_tonumber(L, cnt));
+
+			if(r!=-1){
+				list.push_back(r);
+			}
+			else {
+				return 0;
+			}
+		}
+		else if (tp == LUA_TNIL || tp == -1) {
+			break;
+		}
+		else {
+			return 0;
+		}
+
+		cnt++;
+	}
+
+	if (list.size() < 1) {
+		return 0;
+	}
+
+	wchar_t temp;
+	std::wstring ret;
+	for (int i = 0; i < list.size(); i++)
+	{
+		temp = list[i];
+		ret += temp;
+	}
+
+	lua_pushstring(L, WstrToStr(ret).c_str());
+	return 1;
+}
 
 static luaL_Reg functions[] = {
 	{"getinfo", getinfo},
@@ -899,6 +1056,10 @@ static luaL_Reg functions[] = {
 
 	{"time", time},
 	{"date", date},
+
+	{"utf8_char", utf8_char},
+	{"utf8_byte", utf8_byte},
+
 	{ nullptr, nullptr }
 };
 
