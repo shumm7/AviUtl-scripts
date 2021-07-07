@@ -9,10 +9,11 @@
 #include <chrono>
 #include <time.h>
 #include <codecvt>
+#include <exception>
 
 #define module_name "textmodule"
-#define version "0.1.0"
-#define version_num 4
+#define version "0.1.1"
+#define version_num 5
 
 using namespace std::chrono;
 
@@ -447,7 +448,15 @@ int find(lua_State* L) {
 	std::wstring pattern = StrToWstr(lua_tostring(L, 2));
 
 	std::wsmatch results;
-	bool l = std::regex_search(text, results, std::wregex(pattern));
+	bool l;
+	try {
+		l = std::regex_search(text, results, std::wregex(pattern));
+	}
+	catch (std::exception& e) {
+		luaL_error(L, e.what());
+		return 1;
+	}
+
 	if (l) {
 		lua_pushinteger(L, results.position()+1 );
 		lua_pushinteger(L, results.position()+results.length() );
@@ -514,7 +523,15 @@ int gsub(lua_State* L) {
 	for (int i = 0; i < num; i++)
 	{
 		std::wsmatch results;
-		bool l = std::regex_search(text, results, std::wregex(pattern));
+		bool l;
+		try {
+			l = std::regex_search(text, results, std::wregex(pattern));
+		}
+		catch (std::exception& e) {
+			luaL_error(L, e.what());
+			return 1;
+		}
+
 		if (l) {
 			int s = results.position();
 			int l = results.length();
@@ -608,7 +625,15 @@ int match(lua_State* L) {
 
 	text = text.substr(start);
 	std::wsmatch results;
-	bool l = std::regex_search(text, results, std::wregex(pattern));
+	bool l;
+	try {
+		l = std::regex_search(text, results, std::wregex(pattern));
+	}
+	catch (std::exception &e) {
+		luaL_error(L, e.what());
+		return 1;
+	}
+
 	if (l) {
 		lua_pushstring(L, WstrToStr(results.str()).c_str());
 		return 1;
@@ -725,18 +750,23 @@ int gmatch(lua_State* L) {
 	lua_getglobal(L, "my_factory");
 	lua_newtable(L);
 
-	if ( std::regex_match(s, m, std::wregex(pattern)) ) {
-		int size = m.size();
+	try {
+		if (std::regex_match(s, m, std::wregex(pattern))) {
+			int size = m.size();
 
-		for (int i = 0; i < size; i++)
-		{
-			lua_pushinteger(L, i+1);
-			lua_pushstring(L, WstrToStr( m[i].str() ).c_str() );
-			lua_settable(L, -3);
+			for (int i = 0; i < size; i++)
+			{
+				lua_pushinteger(L, i + 1);
+				lua_pushstring(L, WstrToStr(m[i].str()).c_str());
+				lua_settable(L, -3);
+			}
 		}
-	}
 
-	lua_pcall(L, 1, 1, 0);
+		lua_pcall(L, 1, 1, 0);
+	}
+	catch (std::exception& e) {
+		luaL_error(L, e.what());
+	}
 	return 1;
 }
 
@@ -863,9 +893,10 @@ int time(lua_State* L) {
 
 int date(lua_State* L) {
 	std::wstring format;
-	__time64_t time;
-	struct tm time_st;
 	bool utc = false;
+
+	__time64_t time_t;
+
 
 	if (lua_type(L, 1) == LUA_TNIL || lua_type(L, 1) == -1) {
 		format = L"%c";
@@ -877,58 +908,81 @@ int date(lua_State* L) {
 		return 0;
 	}
 
-	//UTC
-	if (WstrToStr(format)[0] == '!') {
+	if (WstrToStr(format)[0] == '!') {  //UTC
 		utc = true;
 		format = format.substr(1);
 	}
 
+
+	std::chrono::time_point now = std::chrono::system_clock::now();
+
 	if (lua_type(L, 2) == LUA_TNIL || lua_type(L, 2) == -1) {
-		auto now = std::chrono::system_clock::now();
-		time = std::chrono::system_clock::to_time_t(now);
+		time_t = std::chrono::system_clock::to_time_t(now);
 	}
 	else if (lua_type(L, 2) == LUA_TNUMBER) {
-		time = lua_tonumber(L, 2);
+		time_t = lua_tonumber(L, 2);
 	}
 	else {
 		return 0;
 	}
 
-	if (utc) {
-		_gmtime64_s(&time_st, &time);
-	}
-	else {
-		_localtime64_s(&time_st, &time);
-	}
 
 	if (format == L"*t") {
-		lua_newtable(L);
+		struct tm tm;
+		if (utc) { //tm struct
+			_gmtime64_s(&tm, &time_t);
+		}
+		else {
+			_localtime64_s(&tm, &time_t);
+		}
 
-		lua_pushnumber(L, (long long)time_st.tm_year + (long long)1900);
+		lua_newtable(L);
+		lua_pushnumber(L, (long long)tm.tm_year + (long long)1900);
 		lua_setfield(L, -2, "year");
-		lua_pushnumber(L, (long long)time_st.tm_mon+ (long long)1);
+		lua_pushnumber(L, (long long)tm.tm_mon+ (long long)1);
 		lua_setfield(L, -2, "month");
-		lua_pushnumber(L, time_st.tm_mday);
+		lua_pushnumber(L, tm.tm_mday);
 		lua_setfield(L, -2, "day");
-		lua_pushnumber(L, time_st.tm_hour);
+		lua_pushnumber(L, tm.tm_hour);
 		lua_setfield(L, -2, "hour");
-		lua_pushnumber(L, time_st.tm_min);
+		lua_pushnumber(L, tm.tm_min);
 		lua_setfield(L, -2, "min");
-		lua_pushnumber(L, time_st.tm_sec);
+		lua_pushnumber(L, tm.tm_sec);
 		lua_setfield(L, -2, "sec");
-		lua_pushnumber(L, (long long)time_st.tm_wday + (long long)1);
+		lua_pushnumber(L, (long long)tm.tm_wday + (long long)1);
 		lua_setfield(L, -2, "wday");
-		lua_pushnumber(L, (long long)time_st.tm_yday + (long long)1);
+		lua_pushnumber(L, (long long)tm.tm_yday + (long long)1);
 		lua_setfield(L, -2, "yday");
-		lua_pushnumber(L, time_st.tm_isdst);
+		lua_pushnumber(L, tm.tm_isdst);
 		lua_setfield(L, -2, "isdst");
 
 		return 1;
 	}
 	else {
-		wchar_t buffer[128];
-		wcsftime(buffer, 128, format.c_str(), &time_st);
-		lua_pushstring(L, WstrToStr(buffer).c_str());
+		std::wstring f = L"{:" + format + L"}";
+		const char* timezone;
+
+		
+
+		std::chrono::sys_seconds now_sec = std::chrono::floor<std::chrono::seconds>(now); // •b’PˆÊ
+		std::chrono::zoned_seconds zone_time;
+		if (utc) {
+			zone_time = { "UTC" , now_sec };
+		}
+		else {
+			zone_time = { std::chrono::current_zone() , now_sec };
+		}
+		std::chrono::local_seconds local_time = zone_time.get_local_time();
+
+		try {
+			f = std::format(f, local_time);
+		}
+		catch (std::exception e) {
+			luaL_error(L, e.what());
+			return 1;
+		}
+
+		lua_pushstring(L, WstrToStr(f).c_str());
 		return 1;
 	}
 
