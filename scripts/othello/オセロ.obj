@@ -1,0 +1,396 @@
+--track0:サイズ,100,2000,500,1
+--track1:石サイズ,0,1,0.8,0.01
+--track2:文字サイズ,0,1,0.1,0.01
+--check0:データをリセットする,0
+--dialog:対戦データ名,local data="default";盤面色/col,board_color=0x006400;枠色/col,frame_color=0x000000;黒石色/col,stone_black_color=0x000000;白石色/col,stone_white_color=0xffffff;枠太さ,frame_width=4;選択時に表示/chk,mode_show_selection=1;単純なクリック挙動/chk,mode_click=0;情報を表示/chk,mode_info=0;
+
+require("rikky_module")
+
+_DATA_DIR = obj.getinfo("script_path").."\othello\\"..data..".txt"
+_COLOR = {black=2, white=1, none=0}
+_BOARD = {}
+_BOARDSIZE = {x=8, y=8}
+local size, stone_size, text_size = obj.track0, obj.track1, obj.track2
+local fontsize = size * text_size
+local pos, zoom = {x=obj.x, y=obj.y, z=obj.z}, obj.getvalue("zoom")/100
+
+local function setTurn(color)
+	_G["OthelloTurn"]=color
+end
+
+local function loadBoardData()
+	fh=io.open(_DATA_DIR, "r")
+	if fh==nil then
+		return
+	end
+
+	b, t = {}, {}
+
+	y = 1
+	for line in fh:lines() do
+		b[y]={}
+		t[y] = line
+		y = y + 1
+	end
+
+	for y=1,_BOARDSIZE.y do
+		for x=1, _BOARDSIZE.x do
+			b[y][x]=tonumber(t[y]:sub(x, x))
+		end
+	end
+	setTurn( tonumber(t[_BOARDSIZE.y+1]) )
+
+	fh:close()
+	return b
+end
+
+local function saveBoardData(_b)
+	str = ""
+
+	for y=1,_BOARDSIZE.y do
+		for x=1,_BOARDSIZE.x do
+			str = str..tostring( _b[y][x] )
+		end
+		str = str.."\n"
+	end
+	str = str..OthelloTurn
+
+	fh=io.open(_DATA_DIR, "w+")
+	fh:write(str)
+	fh:close()
+end
+
+local function drawBoard(_b)
+
+	--盤面描画
+	local s = size/2
+
+	----ボード
+	obj.load("figure", "四角形", board_color, 1)
+	obj.drawpoly(-s,-s,0, s,-s,0, s,s,0, -s,s,0, 0,0, obj.w,0, obj.w,obj.h, 0,obj.h)
+
+  ----枠
+	obj.load("figure", "四角形", frame_color, 1)
+	for x=1,_BOARDSIZE.x+1 do
+		local p = -s + (x-1)*(size/_BOARDSIZE.x)
+		local fs = frame_width/2
+		obj.drawpoly(p-fs,-s,0, p+fs,-s,0, p+fs,s,0, p-fs,s,0, 0,0, obj.w,0, obj.w,obj.h, 0,obj.h)
+	end
+	for y=1,_BOARDSIZE.y+1 do
+		local p = -s + (y-1)*(size/_BOARDSIZE.y)
+		local fs = frame_width/2
+		obj.drawpoly(-s,p-fs,0, s,p-fs,0, s,p+fs,0, -s,p+fs,0, 0,0, obj.w,0, obj.w,obj.h, 0,obj.h)
+	end
+
+	--石
+	for y=1,_BOARDSIZE.y do
+		for x=1,_BOARDSIZE.x do
+			c = _b[y][x]
+
+			if c==_COLOR.black then
+				obj.load("figure", "円", stone_black_color, (size/_BOARDSIZE.y)*stone_size)
+			elseif c==_COLOR.white then
+				obj.load("figure", "円", stone_white_color, (size/_BOARDSIZE.y)*stone_size)
+			elseif c==_COLOR.none then
+				obj.load("figure", "円", 0, 0)
+			end
+
+			local p = {
+	 		   x = -s + (x-1)*(size/_BOARDSIZE.x)+(size/_BOARDSIZE.x/2),
+				 y = -s + (y-1)*(size/_BOARDSIZE.y)+(size/_BOARDSIZE.y/2),
+				 z = 0
+			 }
+			obj.draw(p.x,p.y,p.z)
+		end
+	end
+end
+
+local function boardInit()
+	local b = {}
+	for y=1,_BOARDSIZE.y do
+			b[y] = {}
+		for x=1,_BOARDSIZE.x do
+			b[y][x] = _COLOR.none
+		end
+	end
+
+	b[4][4] = _COLOR.white
+	b[5][5] = _COLOR.white
+	b[4][5] = _COLOR.black
+	b[5][4] = _COLOR.black
+	setTurn(_COLOR.black)
+
+	return b
+end
+
+local function getMouseInfo()
+	mx, my = rikky_module.mouse()
+	ret = {
+		clicked = rikky_module.key("LB")[1],
+		x = mx,
+		y = my
+	}
+	return ret
+end
+
+local function getSelectionPos(mouse)
+	s = size/2
+	cx, cy = mouse.x+s-pos.x, mouse.y+s-pos.y
+	lx, ly = size/_BOARDSIZE.x, size/_BOARDSIZE.y
+
+	px = math.floor(cx/lx) + 1
+	py = math.floor(cy/ly) + 1
+
+	if px<1 or px>_BOARDSIZE.x or py<1 or py>_BOARDSIZE.y then
+		px = -1
+		py = -1
+	end
+
+	if mode_show_selection==1 and mouse.clicked then
+		if px~=-1 and py~=-1 then
+			obj.load("figure", "四角形", 0xffffff, 50)
+
+      x = -s + (px-1)*(size/_BOARDSIZE.x)+(size/_BOARDSIZE.x/2)
+			y = -s + (py-1)*(size/_BOARDSIZE.y)+(size/_BOARDSIZE.y/2)
+			ss = size/_BOARDSIZE.x/2
+			obj.drawpoly(x-ss,y-ss,0, x+ss,y-ss,0, x+ss,y+ss,0, x-ss,y+ss,0, 0,0, obj.w,0, obj.w,obj.h, 0,obj.h, 0.7)
+		end
+	end
+
+	return px, py
+end
+
+local function checkOnClicked(bool)
+	if mode_click==0 then
+		if bool==false then
+			if OnClickedFlag==false then
+				return {OnClicked=false, OnReleased=false}
+			else
+				_G["OnClickedFlag"] = false
+				return {OnClicked=false, OnReleased=true}
+			end
+		else
+			if OnClickedFlag==false then
+				_G["OnClickedFlag"] = true
+				return {OnClicked=true, OnReleased=false}
+			else
+				return {OnClicked=false, OnReleased=false}
+			end
+		end
+
+	elseif mode_click==1 then
+		if bool==false then
+			return {OnClicked=false, OnReleased=false}
+		else
+			return {OnClicked=true, OnReleased=true}
+		end
+	end
+end
+
+local function setDirectionTable(direction)
+	direction = {}
+	for i=1,8 do
+		direction[i]={}
+		for j=1,2 do
+			direction[i][j] = nil
+		end
+	end
+
+	--UP
+	direction[1][1] = 0
+	direction[1][2] = -1
+	--UP RIGHT
+	direction[2][1] = 1
+	direction[2][2] = -1
+	--RIGHT
+	direction[3][1] = 1
+	direction[3][2] = 0
+	--DOWN RIGHT
+	direction[4][1] = 1
+	direction[4][2] = 1
+	--DOWN
+	direction[5][1] = 0
+	direction[5][2] = 1
+	--DOWN LEFT
+	direction[6][1] = -1
+	direction[6][2] = 1
+	--LEFT
+	direction[7][1] = -1
+	direction[7][2] = 0
+	--UP LEFT
+	direction[8][1] = -1
+	direction[8][2] = -1
+
+	return direction
+end
+
+local function oppos(turn)
+	if turn==_COLOR.black then
+		return _COLOR.white
+	elseif turn==_COLOR.white then
+		return _COLOR.black
+	end
+end
+
+function checkCanPlace(_x, _y, _turn)
+	local oppos, direction = oppos(_turn), nil
+	direction = setDirectionTable(direction)
+	local fl=0
+
+	for i=1, 8 do
+		vx, vy = _x + direction[i][1], _y + direction[i][2]
+
+		if vx>0 and vx<9 and vy>0 and vy<9 then
+			if _BOARD[vy][vx] == oppos then
+				while 1 do
+					vx, vy = vx + direction[i][1], vy + direction[i][2]
+					if vx<1 or vx>8 or vy<1 or vy>8 then
+						break
+					end
+
+					if _BOARD[vy][vx]==_turn then
+						fl=1
+					elseif _BOARD[vy][vx]==_COLOR.none then
+						break
+					end
+				end
+			end
+
+		end
+	end
+
+	if _x>0 and _x<9 and _y>0 and _y<9 then
+		if _BOARD[_y][_x]~=_COLOR.none then
+			fl=0
+		end
+	else
+		fl=0
+	end
+
+
+	if fl==1 then
+		return true
+	else
+		return false
+	end
+end
+
+function placeStone(_x, _y, _turn)
+	local oppos, direction = oppos(_turn), nil
+	direction = setDirectionTable(direction)
+
+	if checkCanPlace(_x, _y, _turn) then
+		for i=1, 8 do
+			vx, vy = _x + direction[i][1], _y + direction[i][2]
+
+			if vx>0 and vx<9 and vy>0 and vy<9 then
+				if _BOARD[vy][vx] == oppos then
+					while 1 do
+						vx, vy = vx + direction[i][1], vy + direction[i][2]
+						if vx<1 or vx>8 or vy<1 or vy>8 then
+							break
+						end
+
+						if _BOARD[vy][vx]==_turn then
+							vvx, vvy = _x + direction[i][1], _y + direction[i][2]
+							_BOARD[_y][_x] = _turn
+							while 1 do
+								if vvx<1 or vvx>8 or vvy<1 or vvy>8 then
+									break
+								end
+
+								if _BOARD[vvy][vvx]==oppos then
+									_BOARD[vvy][vvx]=_turn
+								else
+									break
+								end
+								vvx, vvy = vvx + direction[i][1], vvy + direction[i][2]
+							end
+
+						elseif _BOARD[vy][vx]==_COLOR.none then
+							break
+						end
+					end
+				end
+
+			end
+		end
+
+	end
+end
+
+function countPlacablePosition(_turn)
+	cnt = 0
+	for y=1,_BOARDSIZE.y do
+		for x=1,_BOARDSIZE.x do
+			if checkCanPlace(x, y, _turn) then
+				cnt = cnt + 1
+			end
+		end
+	end
+	return cnt
+end
+
+function countStoneAmount()
+	cnt = {black=0, white=0, none=0}
+	for y=1,_BOARDSIZE.y do
+		for x=1,_BOARDSIZE.x do
+			if _BOARD[y][x]==_COLOR.black then
+				cnt.black = cnt.black+1
+			elseif _BOARD[y][x]==_COLOR.black then
+				cnt.white = cnt.white+1
+			elseif _BOARD[y][x]==_COLOR.black then
+				cnt.none = cnt.none+1
+			end
+		end
+	end
+	return cnt
+end
+
+function showInformation()
+	str = ""
+
+	if OthelloTurn==_COLOR.black then
+		str = str.."Turn: Black"
+	elseif OthelloTurn==_COLOR.white then
+		str = str.."Turn: White"
+	end
+
+	local cnt = countStoneAmount()
+	str = str.."\nBlack: "..tostring(cnt.black).."  White: "..tostring(cnt.white)
+	str = str.."\nPlacable: "..tostring(countPlacablePosition(OthelloTurn))
+
+	rikky_module.textload(str, 1, 4, 0, "", fontsize)
+	obj.draw(0, size/2+(fontsize*3)/2, 0)
+end
+
+
+if obj.check0 or io.open(_DATA_DIR, "r")==nil then
+	saveBoardData(boardInit())
+end
+
+obj.setoption("drawtarget", "tempbuffer", obj.screen_w, size+(fontsize*3)*2)
+_MOUSE = getMouseInfo()
+_BOARD = loadBoardData()
+
+drawBoard(_BOARD)
+x, y = getSelectionPos(_MOUSE)
+
+if checkOnClicked(_MOUSE.clicked).OnReleased then
+	if checkCanPlace(x, y, OthelloTurn) then
+		placeStone(x, y, OthelloTurn)
+		if countPlacablePosition(oppos(OthelloTurn))>0 then
+			setTurn(oppos(OthelloTurn))
+		end
+		saveBoardData(_BOARD)
+	end
+end
+
+if mode_info==1 then
+	showInformation()
+end
+
+obj.load("tempbuffer")
+obj.setoption("drawtarget","framebuffer")
+obj.zoom = obj.zoom/zoom
+obj.draw(0, 0, -pos.z)
