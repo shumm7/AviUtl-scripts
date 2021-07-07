@@ -119,7 +119,7 @@ textmoduleの情報を取得します。
 
 ### `t = date(format, time)`
 時間を表す数値`time`を`format`をもとに、文字列へ変換します。  
-`format`の書式は[こちら](https://docs.microsoft.com/ja-jp/cpp/c-runtime-library/reference/strftime-wcsftime-strftime-l-wcsftime-l?view=msvc-160)を参照してください。  
+`format`の書式は[こちら](https://cpprefjp.github.io/reference/chrono/format.html)を参照してください。  
 
 `format`が`"*t"`のときは、以下の構造で表されるテーブルで値を返します。  
 ただし、`format`の先頭1文字が`"!"`の場合は、UTC（世界協定時刻）で計算します。  
