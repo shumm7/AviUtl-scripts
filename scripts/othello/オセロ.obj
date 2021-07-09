@@ -53,13 +53,14 @@
 　・データをリセットする　ONの間、常に盤面データを初手のものに書き換える
 
 ＊設定ダイアログ
-　・対戦データ名　　　　　盤面データを保存する際の名前（拡張子などは不要）
+　・盤面データ名　　　　　盤面データを保存する際の名前（拡張子などは不要）
 　・盤面色　　　　　　　　盤面の色
 　・枠色　　　　　　　　　盤面の枠の色
 　・黒石色　　　　　　　　黒石の色
 　・白石色　　　　　　　　白石の色
 　・枠太さ　　　　　　　　盤面の枠の太さ
-　・選択時UI表示　　　　　ON:選択されているマスが光る　　　OFF:表示しない
+　・外枠太さ　　　　　　　盤面の外枠の太さ
+　・選択時UI表示　　　　　0:表示しない　　1:クリックしたマスが光る　　2:マウスで触れたマスが光る
 　・単純なクリック挙動　　ON:マウスを離した瞬間に石を置く　OFF:マウスがクリックされている時に石を置く（離した瞬間を認識しない）
 　・プレイヤーが後手　　　ON:プレイヤーが白（後手）　　　　OFF:プレイヤーが黒（後手）
 　・CPU探索深度　　　　　CPU思考時に盤面を探索する深さ（3以下推奨）
@@ -79,12 +80,12 @@
 ]]
 
 
---track0:サイズ,100,2000,500,1
+--track0:サイズ,0,2000,500,1
 --track1:石サイズ,0,1,0.8,0.01
 --track2:文字サイズ,0,1,0.1,0.01
 --track3:プレイヤー数,1,2,1,1
 --check0:データをリセットする,0
---dialog:対戦データ名,local data="default";盤面色/col,board_color=0x006400;枠色/col,frame_color=0x000000;黒石色/col,stone_black_color=0x000000;白石色/col,stone_white_color=0xffffff;枠太さ,frame_width=4;選択時UI表示/chk,mode_show_selection=1;単純なクリック挙動/chk,mode_click=0;プレイヤーが後手/chk,mode_player_is_white=0;CPU探索深度,cpu_think_depth=3;CPU待機時間,cpu_think_time=1;情報を表示/chk,mode_info=0;
+--dialog:盤面データ名,local data="default";盤面色/col,board_color=0x006400;枠色/col,frame_color=0x000000;黒石色/col,stone_black_color=0x000000;白石色/col,stone_white_color=0xffffff;枠太さ,frame_width=4;外枠太さ,out_frame_width=10;選択時UI[0-2],mode_show_selection=1;単純なクリック挙動/chk,mode_click=0;プレイヤーが後手/chk,mode_player_is_white=0;CPU探索深度,cpu_think_depth=3;CPU待機時間,cpu_think_time=1;情報を表示/chk,mode_info=0;
 
 require("rikky_module")
 
@@ -97,9 +98,9 @@ _DEPTH = math.floor(cpu_think_depth)  --探索深さ
 _CPU_MIN_THINKTIME = cpu_think_time  --CPUの待機時間
 _EVAL_FUNC_RANDOM = false  --評価値に乱数を付与
 
-local size, stone_size, text_size, mode_cpu = obj.track0, obj.track1, obj.track2, 2-obj.track3
+local objpos, zoom, objrot = {x=obj.x, y=obj.y, z=obj.z}, obj.getvalue("zoom")/100, {rx=obj.getvalue("rx"), ry=obj.getvalue("ry"), rz=obj.getvalue("rz")}
+local size, stone_size, text_size, mode_cpu = obj.track0*zoom, obj.track1, obj.track2, 2-obj.track3
 local fontsize = size * text_size
-local pos, zoom = {x=obj.x, y=obj.y, z=obj.z}, obj.getvalue("zoom")/100
 local direction = {{0, -1}, {1, -1}, {1, 0}, {1, 1}, {0, 1}, {-1, 1}, {-1, 0}, {-1, -1}}
 
 if mode_player_is_white==1 then
@@ -107,6 +108,9 @@ if mode_player_is_white==1 then
 end
 if _DEPTH>10 or _DEPTH<1 then
 	_DEPTH=3
+end
+if size==0 then
+	return
 end
 
 local function copyBoard(_b)
@@ -187,6 +191,11 @@ local function drawBoard(_b)
 
 	--盤面描画
 	local s = size/2
+	local bs = s+out_frame_width
+
+	--背景
+	obj.load("figure", "四角形", frame_color, 1)
+	obj.drawpoly(-bs,-bs,0, bs,-bs,0, bs,bs,0, -bs,bs,0, 0,0, obj.w,0, obj.w,obj.h, 0,obj.h)
 
 	----ボード
 	obj.load("figure", "四角形", board_color, 1)
@@ -258,15 +267,12 @@ end
 
 local function getSelectionPos(mouse)
 	local s = size/2
-	local cx, cy = mouse.x+s-pos.x, mouse.y+s-pos.y
+	local cx, cy = mouse.x + s - obj.x, mouse.y + s - obj.y
 	local lx, ly = size/_BOARDSIZE, size/_BOARDSIZE
-
-	local px = math.floor(cx/lx) + 1
-	local py = math.floor(cy/ly) + 1
+	local px, py = math.floor(cx/lx) + 1, math.floor(cy/ly) + 1
 
 	if px<1 or px>_BOARDSIZE or py<1 or py>_BOARDSIZE then
-		px = -1
-		py = -1
+		px, py = -1, -1
 	end
 
 	if mode_show_selection==1 and mouse.clicked then
@@ -277,6 +283,21 @@ local function getSelectionPos(mouse)
 			y = -s + (py-1)*(size/_BOARDSIZE)+(size/_BOARDSIZE/2)
 			ss = size/_BOARDSIZE/2
 			obj.drawpoly(x-ss,y-ss,0, x+ss,y-ss,0, x+ss,y+ss,0, x-ss,y+ss,0, 0,0, obj.w,0, obj.w,obj.h, 0,obj.h, 0.7)
+		end
+	elseif mode_show_selection==2 then
+		if px~=-1 and py~=-1 then
+			obj.load("figure", "四角形", 0xffffff, 50)
+
+			x = -s + (px-1)*(size/_BOARDSIZE)+(size/_BOARDSIZE/2)
+			y = -s + (py-1)*(size/_BOARDSIZE)+(size/_BOARDSIZE/2)
+			ss = size/_BOARDSIZE/2
+
+			local tp = 0.4
+			if mouse.clicked then
+				tp = 0.7
+			end
+
+			obj.drawpoly(x-ss,y-ss,0, x+ss,y-ss,0, x+ss,y+ss,0, x-ss,y+ss,0, 0,0, obj.w,0, obj.w,obj.h, 0,obj.h, tp)
 		end
 	end
 
@@ -588,7 +609,7 @@ if obj.check0 or io.open(_DATA_DIR, "r")==nil then
 	resetCPUPlacedTimer()
 end
 
-obj.setoption("drawtarget", "tempbuffer", size, size)
+obj.setoption("drawtarget", "tempbuffer", size+out_frame_width*2, size+out_frame_width*2)
 _MOUSE = getMouseInfo()
 _BOARD = loadBoardData()
 
@@ -625,8 +646,11 @@ end
 
 obj.load("tempbuffer")
 obj.setoption("drawtarget","framebuffer")
-obj.zoom = obj.zoom/zoom
-obj.draw(0, 0, -pos.z)
+
+obj.zoom = obj.zoom/zoom --拡大率無効化
+obj.rx, obj.ry, obj.rz = obj.rx-objrot.rx, obj.ry-objrot.ry, obj.rz-objrot.rz  --回転無効化
+
+obj.draw(0, 0, -objpos.z)
 
 if mode_info==1 then
 	showInformation()
