@@ -384,3 +384,7 @@ std::wstring toHalfwidth(std::wstring string, bool invert, bool space) {
 
 	return string;
 }
+
+void debug_string(std::wstring message) {
+	OutputDebugString(WstrToStr(message).c_str());
+}

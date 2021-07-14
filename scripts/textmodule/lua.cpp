@@ -10,8 +10,8 @@
 #include "textmodule_string.h"
 
 #define module_name "textmodule"
-#define version "0.1.2"
-#define version_num 6
+#define version "0.1.3"
+#define version_num 7
 
 using namespace std::chrono;
 
@@ -131,7 +131,7 @@ int gsub(lua_State* L) {
 	if (lua_type(L, 4) == LUA_TNUMBER) {
 		num = lua_tointeger(L, 4);
 	}
-	else if (lua_type(L, 4) == LUA_TNIL || lua_type(L, 4) == -1) {
+	else if (lua_type(L, 4) == LUA_TNIL || lua_type(L, 4) == LUA_TNONE) {
 		num = 1;
 	}
 	else {
@@ -179,7 +179,7 @@ int reverse(lua_State* L) {
 	}
 	std::wstring text = StrToWstr(lua_tostring(L, 1));
 	std::wstring ret;
-	for (int i = 0; i < text.length(); i++)
+	for (unsigned int i = 0; i < text.length(); i++)
 	{
 		ret += text.substr(text.length() - i - 1 , 1);
 	}
@@ -195,7 +195,7 @@ int upper(lua_State* L) {
 
 	std::wstring text = StrToWstr(lua_tostring(L, 1));
 	std::wstring ret;
-	for (int i = 0; i < text.length(); i++)
+	for (unsigned int i = 0; i < text.length(); i++)
 	{
 		ret += toupper(text[i]);
 	}
@@ -211,7 +211,7 @@ int lower(lua_State* L) {
 
 	std::wstring text = StrToWstr(lua_tostring(L, 1));
 	std::wstring ret;
-	for (int i = 0; i < text.length(); i++)
+	for (unsigned int i = 0; i < text.length(); i++)
 	{
 		ret += tolower(text[i]);
 	}
@@ -234,7 +234,7 @@ int match(lua_State* L) {
 	if (lua_type(L, 3) == LUA_TNUMBER) {
 		start = lua_tointeger(L, 3) - 1;
 	}
-	else if (lua_type(L, 3) == LUA_TNIL || lua_type(L, 3) == -1) {
+	else if (lua_type(L, 3) == LUA_TNIL || lua_type(L, 3) == LUA_TNONE) {
 		start = 0;
 	}
 	else {
@@ -273,7 +273,7 @@ int wbyte(lua_State* L) {
 	if (lua_type(L, 2) == LUA_TNUMBER) {
 		i = lua_tointeger(L, 2) - 1;
 	}
-	else if (lua_type(L, 2) == LUA_TNIL || lua_type(L, 2) == -1) {
+	else if (lua_type(L, 2) == LUA_TNIL || lua_type(L, 2) == LUA_TNONE) {
 		i = 0;
 	}
 	else {
@@ -283,7 +283,7 @@ int wbyte(lua_State* L) {
 	if (lua_type(L, 3) == LUA_TNUMBER) {
 		j = lua_tointeger(L, 3) - 1;
 	}
-	else if (lua_type(L, 3) == LUA_TNIL || lua_type(L, 3) == -1) {
+	else if (lua_type(L, 3) == LUA_TNIL || lua_type(L, 3) == LUA_TNONE) {
 		j = i;
 	}
 	else {
@@ -321,7 +321,7 @@ int wchar(lua_State * L) {
 			if (tp == LUA_TNUMBER) {
 				list.push_back(lua_tonumber(L, cnt));
 			}
-			else if (tp == LUA_TNIL || tp == -1) {
+			else if (tp == LUA_TNIL || tp == LUA_TNONE) {
 				break;
 			}
 			else {
@@ -337,7 +337,7 @@ int wchar(lua_State * L) {
 
 		wchar_t temp;
 		std::wstring ret;
-		for (int i = 0; i < list.size(); i++)
+		for (unsigned int i = 0; i < list.size(); i++)
 		{
 			temp = list[i];
 			ret += temp;
@@ -428,7 +428,7 @@ int halfwidth(lua_State* L) {
 	if (lua_type(L, 2) == LUA_TBOOLEAN) {
 		mode = lua_toboolean(L, 2);
 	}
-	else if (lua_type(L, 2) == LUA_TNIL || lua_type(L, 2)==-1) {
+	else if (lua_type(L, 2) == LUA_TNIL || lua_type(L, 2)== LUA_TNONE) {
 		mode = true;
 	}
 	else {
@@ -452,7 +452,7 @@ int fullwidth(lua_State* L) {
 	if (lua_type(L, 2) == LUA_TBOOLEAN) {
 		mode = lua_toboolean(L, 2);
 	}
-	else if (lua_type(L, 2) == LUA_TNIL || lua_type(L, 2) == -1) {
+	else if (lua_type(L, 2) == LUA_TNIL || lua_type(L, 2) == LUA_TNONE) {
 		mode = true;
 	}
 	else {
@@ -475,7 +475,7 @@ int mojibake(lua_State* L) {
 		return 0;
 	}
 
-	for (int i = 0; i < str.length(); i++)
+	for (unsigned int i = 0; i < str.length(); i++)
 	{
 		auto unicode_c = str[i];
 		if (unicode_c == L'\n') {
@@ -497,7 +497,7 @@ int mojibake(lua_State* L) {
 		
 	}
 
-	for (int i = 0; i < hex.length() / 2; i++) {
+	for (unsigned int i = 0; i < hex.length() / 2; i++) {
 		std::string c = hex.substr(i * 2, 2);
 		ret += std::stoi(c, 0, 16);
 	}
@@ -507,11 +507,11 @@ int mojibake(lua_State* L) {
 }
 
 int time(lua_State* L) {
-	if (lua_type(L, 1) == LUA_TNIL || lua_type(L, 1) == -1) {
+	if (lua_type(L, 1) == LUA_TNIL || lua_type(L, 1) == LUA_TNONE) {
 		auto now = std::chrono::system_clock::now();
 		__time64_t now_c = std::chrono::system_clock::to_time_t(now);
 		
-		lua_pushnumber(L, now_c);
+		lua_pushnumber(L, (lua_Number)now_c);
 		return 1;
 	}
 	else if (lua_type(L, 1) == LUA_TTABLE) {
@@ -546,7 +546,7 @@ int time(lua_State* L) {
 			Time.tm_sec = lua_tonumber(L, -1);
 
 		res = _mktime64(&Time);
-		lua_pushnumber(L, res);
+		lua_pushnumber(L, (lua_Number)res);
 		return 1;
 	}
 
@@ -560,7 +560,7 @@ int date(lua_State* L) {
 	__time64_t time_t;
 
 
-	if (lua_type(L, 1) == LUA_TNIL || lua_type(L, 1) == -1) {
+	if (lua_type(L, 1) == LUA_TNIL || lua_type(L, 1) == LUA_TNONE) {
 		format = L"%c";
 	}
 	else if (lua_type(L, 1) == LUA_TSTRING) {
@@ -578,7 +578,7 @@ int date(lua_State* L) {
 
 	std::chrono::time_point now = std::chrono::system_clock::now();
 
-	if (lua_type(L, 2) == LUA_TNIL || lua_type(L, 2) == -1) {
+	if (lua_type(L, 2) == LUA_TNIL || lua_type(L, 2) == LUA_TNONE) {
 		time_t = std::chrono::system_clock::to_time_t(now);
 	}
 	else if (lua_type(L, 2) == LUA_TNUMBER) {
@@ -660,7 +660,7 @@ int utf8_byte(lua_State* L) {
 	if (lua_type(L, 2) == LUA_TNUMBER) {
 		i = lua_tointeger(L, 2) - 1;
 	}
-	else if (lua_type(L, 2) == LUA_TNIL || lua_type(L, 2) == -1) {
+	else if (lua_type(L, 2) == LUA_TNIL || lua_type(L, 2) == LUA_TNONE) {
 		i = 0;
 	}
 	else {
@@ -670,7 +670,7 @@ int utf8_byte(lua_State* L) {
 	if (lua_type(L, 3) == LUA_TNUMBER) {
 		j = lua_tointeger(L, 3) - 1;
 	}
-	else if (lua_type(L, 3) == LUA_TNIL || lua_type(L, 3) == -1) {
+	else if (lua_type(L, 3) == LUA_TNIL || lua_type(L, 3) == LUA_TNONE) {
 		j = i;
 	}
 	else {
@@ -722,7 +722,7 @@ int utf8_char(lua_State* L) {
 				return 0;
 			}
 		}
-		else if (tp == LUA_TNIL || tp == -1) {
+		else if (tp == LUA_TNIL || tp == LUA_TNONE) {
 			break;
 		}
 		else {
@@ -738,14 +738,68 @@ int utf8_char(lua_State* L) {
 
 	wchar_t temp;
 	std::wstring ret;
-	for (int i = 0; i < list.size(); i++)
+	for (unsigned int i = 0; i < list.size(); i++)
 	{
-		temp = list[i];
+		temp = (wchar_t)list[i];
 		ret += temp;
 	}
 
 	lua_pushstring(L, WstrToStr(ret).c_str());
 	return 1;
+}
+
+int debug_print(lua_State* L) {
+	int i = 1;
+	std::wstring ret = L"";
+
+	while (true)
+	{
+		int tp = lua_type(L, i);
+		std::stringstream ss;
+
+		switch (tp)
+		{
+			case LUA_TNIL:
+				ret = ret + L"nil";
+				break;
+			case LUA_TNUMBER:
+				ss << lua_tonumber(L, i);
+				ret = ret + StrToWstr(ss.str());
+				break;
+			case LUA_TBOOLEAN:
+				if (lua_toboolean(L, i))
+					ret = ret + L"true";
+				else 
+					ret = ret + L"false";
+				break;
+			case LUA_TSTRING:
+				ret = ret + StrToWstr(lua_tostring(L, i));
+				break;
+			case LUA_TTABLE:
+				ret = ret + L"table";
+				break;
+			case LUA_TFUNCTION:
+				ret = ret + L"function";
+				break;
+			case LUA_TUSERDATA:
+				ret = ret + L"userdata";
+				break;
+			case LUA_TTHREAD:
+				ret = ret + L"thread";
+				break;
+			case LUA_TLIGHTUSERDATA:
+				ret = ret + L"lightuserdata";
+				break;
+			case LUA_TNONE:
+				ret = ret.substr(0, ret.length() - 1);
+				debug_string(ret);
+				lua_pushstring(L, WstrToStr(ret).c_str());
+				return 1;
+		}
+
+		ret = ret + L",";
+		i++;
+	}
 }
 
 
@@ -779,6 +833,8 @@ static luaL_Reg _TEXTMODULE_FUNCTION_REG[] = {
 
 			{"utf8_char", utf8_char},
 			{"utf8_byte", utf8_byte},
+
+			{"debug_print", debug_print},
 
 			{ nullptr, nullptr }
 };
