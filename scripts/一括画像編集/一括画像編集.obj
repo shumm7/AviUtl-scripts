@@ -1,0 +1,72 @@
+--track0:入力形式,1,5,1,1
+--track1:出力形式,1,4,1,1
+--track2:JPG品質,0,100,90
+--track3:文字サイズ,0,400,34,1
+--check0:有効,0
+--dialog:処理ファイル(lua),local file_name="色調補正";その他入力形式,local other_format="";情報表示/chk,local mode_info=0;引数1,local data1="";引数2,local data2="";引数3,local data3="";引数4,local data4="";
+local OUT_PATH = obj.getinfo("script_path").."\image\\out\\"
+local IN_PATH = obj.getinfo("script_path").."\image\\"
+local DATA_PATH = obj.getinfo("script_path").."\image\\lua\\"..file_name..".lua"
+
+obj.setfont("", obj.track3)
+
+local tm = require "textmodule"
+local format = {"png", "jpg", "jpeg", "bmp", other_format}
+_G["data"] = {data1, data2, data3, data4}
+
+local function exist(dir)
+	if io.open(dir,"r")~=nil then
+		return true
+	end
+	return false
+end
+
+if mode_info==1 then
+	if exist(DATA_PATH) then
+		local s = dofile(DATA_PATH)
+		local str = "["..file_name..".lua]\n"
+		str = str.."解説："..s.main.."\n\n"
+		str = str.."引数1："..s.data1.."\n"
+		str = str.."引数2："..s.data2.."\n"
+		str = str.."引数3："..s.data3.."\n"
+		str = str.."引数4："..s.data4.."\n"
+		obj.load("text", str)
+		return
+	else
+		local str = "[ファイルなし]"
+		obj.load("text", str)
+		return
+	end
+end
+
+local fileList = rikky_module.dir(IN_PATH, format[obj.track0])
+if obj.check0 then
+	for i,v in pairs(fileList) do
+		local fileName = tm.gsub(v, IN_PATH:gsub("\\", "\\\\"), "")
+		obj.load("image", v)
+
+		if exist(DATA_PATH) then
+			dofile(DATA_PATH)
+		end
+
+		fileName = tm.sub(fileName, 1, tm.len(fileName)-tm.len(format[obj.track0]))
+		if obj.track1==1 then
+			rikky_module.png(OUT_PATH..fileName.."png")
+		elseif obj.track1==2 then
+			rikky_module.jpg(OUT_PATH..fileName.."jpg", obj.track2)
+		elseif obj.track1==3 then
+			rikky_module.jpg(OUT_PATH..fileName.."jpeg", obj.track2)
+		elseif obj.track1==4 then
+			rikky_module.bmp(OUT_PATH..fileName.."bmp")
+		end
+	end
+else
+	local str = "["..tm.date("%F %X", tm.time()).."] 現在の入力形式は "..tm.upper(format[obj.track0]).." です。\n"
+	str = str.."["..tm.date("%F %X", tm.time()).."] 現在の出力形式は "..tm.upper(format[obj.track1]).." です。\n"
+	obj.load("text", str.."["..tm.date("%F %X", tm.time()).."] このスクリプトは無効化されています。")
+	return
+end
+
+obj.draw()
+obj.load("text", "["..tm.date("%F %X", tm.time()).."] "..tostring(#fileList).."件の画像の処理に成功しました。")
+obj.draw()
