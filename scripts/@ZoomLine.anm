@@ -1,0 +1,81 @@
+@本体(一番下に配置)
+--track0:開始拡大率,0,4000,100
+--track1:終了拡大率,0,4000,50
+--track2:分割数,0.01,50,1,0.01
+--check0:仮想バッファ
+
+local start_size, end_size = obj.track0, obj.track1
+local div = obj.track2
+
+if zl_start_pos==nil then
+	zl_start_pos={x=0, y=0, z=0}
+end
+if zl_end_pos==nil then
+	zl_end_pos={x=0, y=0, z=0}
+end
+if zl_alpha==nil then
+	zl_alpha = {s=100, e=100}
+end
+if zl_start_rot==nil then
+	zl_start_rot={x=0, y=0, z=0}
+end
+if zl_end_rot==nil then
+	zl_end_rot={x=0, y=0, z=0}
+end
+
+local length = math.sqrt( (zl_start_pos.x-zl_end_pos.x)^2 + (zl_start_pos.y-zl_end_pos.y)^2 + (zl_start_pos.z-zl_end_pos.z)^2 )
+
+if obj.check0 then
+	obj.setoption("drawtarget","tempbuffer", obj.screen_w, obj.screen_h)
+end
+
+for i=1,length/div do
+	local progress = i/(length/div)
+	local x = zl_start_pos.x + (zl_end_pos.x-zl_start_pos.x)*progress
+	local y = zl_start_pos.y + (zl_end_pos.y-zl_start_pos.y)*progress
+	local z = zl_start_pos.z + (zl_end_pos.z-zl_start_pos.z)*progress
+
+	local rx = zl_start_rot.x + (zl_end_rot.x-zl_start_rot.x)*progress
+	local ry = zl_start_rot.y + (zl_end_rot.y-zl_start_rot.y)*progress
+	local rz = zl_start_rot.z + (zl_end_rot.z-zl_start_rot.z)*progress
+
+	local alpha = zl_alpha.s + (zl_alpha.e-zl_alpha.s)*progress
+	local size = start_size + (end_size-start_size)*progress
+
+	obj.draw(x, y, z, size/100, alpha/100, rx, ry, rz)
+end
+
+if obj.check0 then
+	obj.load("tempbuffer")
+	obj.setoption("drawtarget","framebuffer")
+	obj.draw()
+end
+
+@座標（開始）
+--track0:X,-4000,4000,0
+--track1:Y,-4000,4000,0
+--track2:Z,-4000,4000,0
+zl_start_pos = {x=obj.track0, y=obj.track1, z=obj.track2}
+
+@座標（終了）
+--track0:X,-4000,4000,0
+--track1:Y,-4000,4000,0
+--track2:Z,-4000,4000,0
+zl_end_pos = {x=obj.track0, y=obj.track1, z=obj.track2}
+
+@不透明度
+--track0:開始,0,100,100
+--track1:終了,0,100,100
+zl_alpha = {s=obj.track0, e=obj.track1}
+
+@回転（開始）
+--track0:X,-3600,3600,0
+--track1:Y,-3600,3600,0
+--track2:Z,-3600,3600,0
+zl_start_rot = {x=obj.track0, y=obj.track1, z=obj.track2}
+
+@回転（終了）
+--track0:X,-3600,3600,0
+--track1:Y,-3600,3600,0
+--track2:Z,-3600,3600,0
+zl_end_rot = {x=obj.track0, y=obj.track1, z=obj.track2}
