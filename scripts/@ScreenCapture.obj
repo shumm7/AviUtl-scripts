@@ -1,0 +1,37 @@
+@画面出力
+--track0:出力形式,1,3,1,1
+--check0:キャプチャ,0
+--dialog:ファイル名,local file_name="screen_shot";カーソルを写す/chk,local show_cursor=1;
+
+local OUT_PATH = obj.getinfo("script_path")
+
+obj.load("framebuffer")
+
+if obj.check0 then
+	if obj.track0==1 then
+		rikky_module.png(OUT_PATH..file_name..".png")
+	elseif obj.track0==2 then
+		rikky_module.jpg(OUT_PATH..file_name..".jpg")
+	elseif obj.track0==3 then
+		rikky_module.bmp(OUT_PATH..file_name..".bmp")
+	end
+end
+
+@デスクトップ画面出力
+--track0:出力形式,1,3,1,1
+--check0:キャプチャ,0
+--dialog:ファイル名,local file_name="screen_shot";カーソルを写す/chk,local show_cursor=1;
+
+local OUT_PATH = obj.getinfo("script_path")
+
+rikky_module.desk(0,0,0,0,show_cursor)
+
+if obj.check0 then
+	if obj.track0==1 then
+		rikky_module.png(OUT_PATH..file_name..".png")
+	elseif obj.track0==2 then
+		rikky_module.jpg(OUT_PATH..file_name..".jpg")
+	elseif obj.track0==3 then
+		rikky_module.bmp(OUT_PATH..file_name..".bmp")
+	end
+end
