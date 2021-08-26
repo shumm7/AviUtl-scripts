@@ -2,7 +2,7 @@
 -----------------------------------------------
 　　　　　　　　　テキスト遷移
 
-　　作者：しゅう　　　　　　バージョン：1.0
+　　作者：しゅう　　　　　　バージョン：1.1
 -----------------------------------------------
 テキスト遷移は、テキストを1文字ずつ、指定した順番で変化させることができます。
 ※動作には rikky_module と textmoduleが必要です。
@@ -32,6 +32,9 @@
  rikky_module 0.1.delta
  textmodule 0.1.3
 
+◯ 更新履歴
+ [v1.0 2021-08-26] リリース
+ [v1.1 2021-08-26] 「時間」が負の数の際の処理を修正
 ]]
 
 --track0:時間[s],-5,5,0.05,0.01
@@ -78,8 +81,6 @@ function T(text)
 		c = table[index[i]]
 
 		if textmodule.len(c)==1 and not(isSkipped(index[i])) then
-			d = time-(div*cnt)
-
 			if modeRandom==0 then
 				char = char_list
 			elseif modeRandom==1 then
@@ -92,13 +93,29 @@ function T(text)
 				end
 			end
 
-			if d>=0 then
-				di = math.floor(d / starttime)+1
-				if di<=#char then
-					c = char[di]
+			if starttime>=0 then
+				d = time-(div*cnt)
+
+				if d>=0 then
+					di = math.floor(d / starttime)+1
+					if di<=#char then
+						c = char[di]
+					end
+				else
+					c = char[1]
 				end
 			else
-				c = char[1]
+				d = (obj.totaltime)+(-time-(div*cnt))
+				debug_print(d)
+
+				if d>=0 then
+					di = math.floor(d / -starttime)+1
+					if di<=#char then
+						c = char[#char-di+1]
+					end
+				else
+					c = char[#char]
+				end
 			end
 
 			table[index[i]] = c
