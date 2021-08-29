@@ -1,0 +1,299 @@
+--[[
+-----------------------------------------------
+　　　　　　　　　テキスト遷移
+
+　　作者：しゅう　　　　　　バージョン：1.2
+-----------------------------------------------
+テキスト遷移は、テキストを1文字ずつ、指定した順番で変化させることができます。
+※動作には rikky_module と textmoduleが必要です。
+
+◯ 使い方
+1. テキストオブジェクトを追加して、<?mes(T("変化させたい文字列"))?> と入力します。
+2. 設定ダイアログから、テーブルで変化途中に表示する文字を指定します。
+　　例えば {"A", "B", "C"} と指定すると、「A」→「B」→「C」→「変」のように文字が切り替わります。
+3. 時間、間隔、登場順を指定します。
+
+◯ 設定項目
+	☆ トラックバー
+	　時間　：変化途中の文字の表示時間を指定します。
+	　間隔　：変化開始までの時間を指定します。
+	　　　　：
+	　登場順：1.前から変化　2.後ろから変化　3.ランダム順で変化
+
+	☆ ダイアログ
+	 文字　　　　　：変化する文字をテーブルで指定します。{"A", "B", "C"}とするとA→B→Cの順番に変化します。
+	 遷移しない文字：1文字目を1として、変化をしない文字をテーブルで指定します。{1, 4}とすると、1文字目と4文字目は変化しません。
+	 ランダム文字順：ONにすると、「文字」で指定した文字がランダムな順番で出現します。
+	 シード　　　　：乱数用のシード値
+
+◯ テスト環境
+ AviUtl 1.10
+   exedit 0.93rc1
+ rikky_module 0.1.delta
+ textmodule 0.1.3
+
+◯ 更新履歴
+ [v1.0 2021-08-26] リリース
+ [v1.1 2021-08-26] 「時間」が負の数の際の処理を修正
+ [v2.0-alpha 2021-08-26] 入退場の機能を追加、テキスト用と単体用に分離
+]]
+
+@単体用
+--track0:時間[s],-5,5,0.05,0.01
+--track1:間隔[s],0,5,0.05,0.01
+--track2:サイズ,0,256,34,1
+--track3:登場順,1,3,1,1
+--dialog:元テキスト,text="テキストを入力";文字,char_list="　,？";フォント,fontFamily="MS UI Gothic";文字装飾,textDecorate=0;左右寄せ[0-2],alignSideMode=1;上下寄せ[0-2],alignUpMode=1;色/col,color="0xffffff";影・縁色/col,colorDecorate="0x000000";入退場/chk,modeRev=0;遷移しない文字,skip_index="";ランダム文字順/chk,modeRandom=0;シード,seed=0;
+
+require("textmodule")
+
+local function split(str)
+    if string.find(str, ",") == nil then
+        return { str }
+    end
+
+    local result = {}
+    local pat = "(.-)" .. "," .. "()"
+    local lastPos
+    for part, pos in string.gfind(str, pat) do
+        table.insert(result, part)
+        lastPos = pos
+    end
+    table.insert(result, string.sub(str, lastPos))
+    return result
+end
+
+local function isSkipped(ind)
+	local sd = split(skip_index)
+	for j=1,#sd do
+		if ind==sd[j] then return true end
+	end
+	return false
+end
+
+local starttime, div, textSize, mode = obj.track0, obj.track1, obj.track2, obj.track3
+local char = split(char_list)
+
+local function T(text, depth)
+	local table = rikky_module.textsplit(text)
+	local length = #table
+	local ret, c, index = "", "", {}
+	local cnt, time = 0, obj.time
+
+	if mode==1 then --順番に登場
+		for i=1, length do index[i]=i end
+	elseif mode==2 then --逆順に登場
+		for i=1, length do index[i]=length-(i-1) end
+	elseif mode==3 then --ランダム順に登場
+		for i=1,length do index[i]=i end
+		for i=1, length do
+			local dest = rand(1,length, seed,i)
+	    local swap = index[i]
+	    index[i] = index[dest]
+	    index[dest] = swap
+		end
+	end
+
+	for i=1,length do
+		c = table[index[i]]
+
+		if textmodule.len(c)==1 and not(isSkipped(index[i])) and c~="\n" then
+			if modeRandom==1 then
+				for j=1, #char do
+					local dest = rand(1,#char, seed,i*10+j)
+					local swap = char[j]
+					char[j] = char[dest]
+					char[dest] = swap
+				end
+			end
+
+			if starttime>=0 then
+				d = time-(div*cnt)
+
+				if d>=0 then
+					di = math.floor(d / starttime)+1
+					if di<=#char then
+						c = char[di]
+					end
+				else
+					c = char[1]
+				end
+			else
+				d = (obj.totaltime)+(-time-(div*cnt))-div*(#char-1)
+				if d>=0 then
+					di = math.floor(d / -starttime)+1
+					if di<=#char then
+						c = char[di]
+					end
+				else
+					c = char[1]
+				end
+			end
+
+			table[index[i]] = c
+			cnt=cnt+1
+		end
+	end
+
+	for i=1,length do ret=ret..table[i] end
+	if modeRev==1 and depth~=1 then
+		starttime=-starttime
+
+		ret = T(ret, 1)
+	end
+	return ret
+end
+
+obj.setfont(fontFamily, textSize, textDecorate, color, colorDecorate)
+obj.load("text", T(text))
+
+local temp = obj.w/2
+if flagOpposX == 1 then
+	temp = temp * -1
+end
+
+if alignSideMode==0 then
+	alignSide = temp
+elseif alignSideMode==2 then
+	alignSide = -temp
+end
+--------------------------------------------------------------
+local temp = obj.h/2
+if flagOpposY == 1 then
+	temp = -temp
+end
+
+if alignUpMode==2 then
+	alignUp = -temp
+elseif alignUpMode==0 then
+	alignUp = temp
+end
+
+local s = alignSide
+local u = alignUp
+local sc = obj.getvalue("zoom") / 100
+local r = math.rad(obj.rz)
+
+if obj.w>0 then
+	obj.ox = obj.ox + (s * math.cos(r)) * sc
+	obj.oy = obj.oy + (s * math.sin(r)) * sc
+else
+	obj.ox = obj.ox - (s * math.cos(r)) * sc
+	obj.oy = obj.oy - (s * math.sin(r)) * sc
+end
+
+if obj.h>0 then
+	obj.ox = obj.ox + (u * math.sin(-r)) * sc
+	obj.oy = obj.oy + (u * math.cos(-r)) * sc
+else
+	obj.ox = obj.ox - (u * math.sin(-r)) * sc
+	obj.oy = obj.oy - (u * math.cos(-r)) * sc
+end
+
+obj.draw()
+
+
+@テキスト用
+--track0:時間[s],-5,5,0.05,0.01
+--track1:間隔[s],0,5,0.05,0.01
+--track3:登場順,1,3,1,1
+--dialog:文字,char_list="　,？";入退場/chk,modeRev=0;遷移しない文字,skip_index="";ランダム文字順/chk,modeRandom=0;シード,seed=0;
+
+require("textmodule")
+
+local function split(str)
+    if string.find(str, ",") == nil then
+        return { str }
+    end
+
+    local result = {}
+    local pat = "(.-)" .. "," .. "()"
+    local lastPos
+    for part, pos in string.gfind(str, pat) do
+        table.insert(result, part)
+        lastPos = pos
+    end
+    table.insert(result, string.sub(str, lastPos))
+    return result
+end
+
+local function isSkipped(ind)
+	local sd = split(skip_index)
+	for j=1,#sd do
+		if ind==sd[j] then return true end
+	end
+	return false
+end
+
+local starttime, div, mode = obj.track0, obj.track1, obj.track3
+local char = split(char_list)
+
+function T(text, depth)
+	local table = rikky_module.textsplit(text, {"n"})
+	local length = #table
+	local ret, c, index = "", "", {}
+	local cnt, time = 0, obj.time
+
+	if mode==1 then --順番に登場
+		for i=1, length do index[i]=i end
+	elseif mode==2 then --逆順に登場
+		for i=1, length do index[i]=length-(i-1) end
+	elseif mode==3 then --ランダム順に登場
+		for i=1,length do index[i]=i end
+		for i=1, length do
+			local dest = rand(1,length, seed,i)
+	    local swap = index[i]
+	    index[i] = index[dest]
+	    index[dest] = swap
+		end
+	end
+
+	for i=1,length do
+		c = table[index[i]]
+
+		if textmodule.len(c)==1 and not(isSkipped(index[i])) and c~="\n" then
+			if modeRandom==1 then
+				for j=1, #char do
+					local dest = rand(1,#char, seed,i*10+j)
+					local swap = char[j]
+					char[j] = char[dest]
+					char[dest] = swap
+				end
+			end
+
+			if starttime>=0 then
+				d = time-(div*cnt)
+
+				if d>=0 then
+					di = math.floor(d / starttime)+1
+					if di<=#char then
+						c = char[di]
+					end
+				else
+					c = char[1]
+				end
+			else
+				d = (obj.totaltime)+(-time-(div*cnt))-div*(#char-1)
+				if d>=0 then
+					di = math.floor(d / -starttime)+1
+					if di<=#char then
+						c = char[di]
+					end
+				else
+					c = char[1]
+				end
+			end
+
+			table[index[i]] = c
+			cnt=cnt+1
+		end
+	end
+
+	for i=1,length do ret=ret..table[i] end
+	if modeRev==1 and depth~=1 then
+		starttime=-starttime
+
+		ret = T(ret, 1)
+	end
+	return ret
+end
