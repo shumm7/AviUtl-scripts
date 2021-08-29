@@ -8,23 +8,45 @@
 ※動作には rikky_module と textmoduleが必要です。
 
 ◯ 使い方
-1. テキストオブジェクトを追加して、<?mes(T("変化させたい文字列"))?> と入力します。
-2. 設定ダイアログから、テーブルで変化途中に表示する文字を指定します。
-　　例えば {"A", "B", "C"} と指定すると、「A」→「B」→「C」→「変」のように文字が切り替わります。
-3. 時間、間隔、登場順を指定します。
+　☆テキスト用（テキストオブジェクトを使用するタイプ）
+  1. テキストオブジェクトを追加して、<?mes(T("変化させたい文字列"))?> と入力します。
+  2. アニメーション効果から「テキスト用＠テキスト遷移」を追加します。
+  3. 設定ダイアログから、コンマ区切りで変化途中に表示する文字を指定します。
+  　　例えば A,B,C と指定すると、「A」→「B」→「C」→「変」のように文字が切り替わります。
+  　　<n>を指定すると、変化前の文字（入力した文字）が使用されます。
+  4. 時間、間隔、登場順を指定します。
+
+  ☆単体用（図形オブジェクトなどを使用するタイプ）
+  1. 適当なオブジェクトに、アニメーション効果の「単体用＠テキスト遷移」を追加します。
+  2. 設定ダイアログの「元テキスト」から、変化させたい文字列を入力します。
+  3. 設定ダイアログの「文字」から、コンマ区切りで変化途中に表示する文字を指定します。
+  　　例えば A,B,C と指定すると、「A」→「B」→「C」→「変」のように文字が切り替わります。
+  　　<n>を指定すると、変化前の文字（入力した文字）が使用されます。
+  4. 時間、間隔、登場順を指定します。
 
 ◯ 設定項目
 	☆ トラックバー
 	　時間　：変化途中の文字の表示時間を指定します。
 	　間隔　：変化開始までの時間を指定します。
-	　　　　：
+	　サイズ：文字サイズ（単体用限定）
 	　登場順：1.前から変化　2.後ろから変化　3.ランダム順で変化
 
-	☆ ダイアログ
-	 文字　　　　　：変化する文字をテーブルで指定します。{"A", "B", "C"}とするとA→B→Cの順番に変化します。
-	 遷移しない文字：1文字目を1として、変化をしない文字をテーブルで指定します。{1, 4}とすると、1文字目と4文字目は変化しません。
+	☆ ダイアログ（共通）
+	 文字　　　　　：変化する文字をコンマ区切りで指定します。A,B,CとするとA→B→Cの順番に変化します。
+   入退場　　　　：「時間」に-1を掛けて、再度エフェクトを適用します（入場と退場を同時に行う）。
+	 遷移しない文字：1文字目を1として、変化をしない文字をコンマ区切りで指定します。 1,4 とすると、1文字目と4文字目は変化しません。
 	 ランダム文字順：ONにすると、「文字」で指定した文字がランダムな順番で出現します。
 	 シード　　　　：乱数用のシード値
+
+  ☆ ダイアログ（単体用限定）
+  　元テキスト　　：変化前のテキスト
+  　フォント　　　：使用するフォント名を入力
+  　文字装飾　　　：0.装飾なし　1.影付き文字　2.影付き文字(薄)　3.縁取り文字　4.縁取り文字(薄)
+  　左右寄せ　　　：0.左寄せ　1.中央寄せ　2.右寄せ
+  　上下寄せ　　　：0.上寄せ　1.中央寄せ　2.下寄せ
+  　色　　　　　　：テキストの色
+  　影・縁色　　　：文字装飾を1～4にした際に使用される影/縁の色
+
 
 ◯ テスト環境
  AviUtl 1.10
@@ -36,6 +58,7 @@
  [v1.0 2021-08-26] リリース
  [v1.1 2021-08-26] 「時間」が負の数の際の処理を修正
  [v2.0-alpha 2021-08-26] 入退場の機能を追加、テキスト用と単体用に分離
+ [v2.0 2021-08-27] 不具合修正
 ]]
 
 @単体用
@@ -46,6 +69,7 @@
 --dialog:元テキスト,text="テキストを入力";文字,char_list="　,？";フォント,fontFamily="MS UI Gothic";文字装飾,textDecorate=0;左右寄せ[0-2],alignSideMode=1;上下寄せ[0-2],alignUpMode=1;色/col,color="0xffffff";影・縁色/col,colorDecorate="0x000000";入退場/chk,modeRev=0;遷移しない文字,skip_index="";ランダム文字順/chk,modeRandom=0;シード,seed=0;
 
 require("textmodule")
+require("rikky_module")
 
 local function split(str)
     if string.find(str, ",") == nil then
@@ -66,7 +90,7 @@ end
 local function isSkipped(ind)
 	local sd = split(skip_index)
 	for j=1,#sd do
-		if ind==sd[j] then return true end
+		if ind==tonumber(sd[j]) then return true end
 	end
 	return false
 end
@@ -128,6 +152,10 @@ local function T(text, depth)
 				else
 					c = char[1]
 				end
+			end
+
+      if c=="<n>" then
+				c = table[index[i]]
 			end
 
 			table[index[i]] = c
@@ -200,6 +228,7 @@ obj.draw()
 --dialog:文字,char_list="　,？";入退場/chk,modeRev=0;遷移しない文字,skip_index="";ランダム文字順/chk,modeRandom=0;シード,seed=0;
 
 require("textmodule")
+require("rikky_module")
 
 local function split(str)
     if string.find(str, ",") == nil then
@@ -220,7 +249,7 @@ end
 local function isSkipped(ind)
 	local sd = split(skip_index)
 	for j=1,#sd do
-		if ind==sd[j] then return true end
+		if ind==tonumber(sd[j]) then return true end
 	end
 	return false
 end
@@ -282,6 +311,10 @@ function T(text, depth)
 				else
 					c = char[1]
 				end
+			end
+
+      if c=="<n>" then
+				c = table[index[i]]
 			end
 
 			table[index[i]] = c
