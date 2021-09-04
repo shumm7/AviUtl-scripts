@@ -2,7 +2,7 @@
 -----------------------------------------------
 　　　　　　　　　テキスト遷移
 
-　　作者：しゅう　　　　　　バージョン：1.2
+　　作者：しゅう　　　　　　バージョン：2.1
 -----------------------------------------------
 テキスト遷移は、テキストを1文字ずつ、指定した順番で変化させることができます。
 ※動作には rikky_module と textmoduleが必要です。
@@ -59,11 +59,12 @@
  [v1.1 2021-08-26] 「時間」が負の数の際の処理を修正
  [v2.0-alpha 2021-08-26] 入退場の機能を追加、テキスト用と単体用に分離
  [v2.0 2021-08-27] 不具合修正
+ [v2.1 2021-09-05] 間隔が負の数になったときの挙動を追加。変化中の文字に<comma>と入力すると、エスケープすることができる仕様を追加。
 ]]
 
 @単体用
 --track0:時間[s],-5,5,0.05,0.01
---track1:間隔[s],0,5,0.05,0.01
+--track1:間隔[s],-5,5,0.05,0.01
 --track2:サイズ,0,256,34,1
 --track3:登場順,1,3,1,1
 --dialog:元テキスト,text="テキストを入力";文字,char_list="　,？";フォント,fontFamily="MS UI Gothic";文字装飾,textDecorate=0;左右寄せ[0-2],alignSideMode=1;上下寄せ[0-2],alignUpMode=1;色/col,color="0xffffff";影・縁色/col,colorDecorate="0x000000";入退場/chk,modeRev=0;遷移しない文字,skip_index="";ランダム文字順/chk,modeRandom=0;シード,seed=0;
@@ -72,19 +73,23 @@ require("textmodule")
 require("rikky_module")
 
 local function split(str)
-    if string.find(str, ",") == nil then
-        return { str }
-    end
+  local repl = ","
 
-    local result = {}
-    local pat = "(.-)" .. "," .. "()"
-    local lastPos
-    for part, pos in string.gfind(str, pat) do
-        table.insert(result, part)
-        lastPos = pos
-    end
-    table.insert(result, string.sub(str, lastPos))
-    return result
+  if string.find(str, repl) == nil then
+      return { str }
+  end
+
+  local result = {}
+  local pat = "(.-)" .. repl .. "()"
+  local lastPos
+  for part, pos in string.gmatch(str, pat) do
+    local p = string.gsub(part, "<comma>", ",", 256)
+    table.insert(result, p)
+    lastPos = pos
+  end
+  local p = string.gsub(string.sub(str, lastPos), "<comma>", ",", 256)
+  table.insert(result, p)
+  return result
 end
 
 local function isSkipped(ind)
@@ -96,7 +101,18 @@ local function isSkipped(ind)
 end
 
 local starttime, div, textSize, mode = obj.track0, obj.track1, obj.track2, obj.track3
-local char = split(char_list)
+local char
+
+if div<0 then
+  div = -div
+  local temp = split(char_list)
+  char = {}
+  for i=1, #temp do
+    char[temp-i+1] = temp[i]
+  end
+else
+   char = split(char_list)
+end
 
 local function T(text, depth)
 	local table = rikky_module.textsplit(text)
@@ -223,7 +239,7 @@ obj.draw()
 
 @テキスト用
 --track0:時間[s],-5,5,0.05,0.01
---track1:間隔[s],0,5,0.05,0.01
+--track1:間隔[s],-5,5,0.05,0.01
 --track3:登場順,1,3,1,1
 --dialog:文字,char_list="　,？";入退場/chk,modeRev=0;遷移しない文字,skip_index="";ランダム文字順/chk,modeRandom=0;シード,seed=0;
 
@@ -231,19 +247,23 @@ require("textmodule")
 require("rikky_module")
 
 local function split(str)
-    if string.find(str, ",") == nil then
-        return { str }
-    end
+  local repl = ","
 
-    local result = {}
-    local pat = "(.-)" .. "," .. "()"
-    local lastPos
-    for part, pos in string.gfind(str, pat) do
-        table.insert(result, part)
-        lastPos = pos
-    end
-    table.insert(result, string.sub(str, lastPos))
-    return result
+  if string.find(str, repl) == nil then
+      return { str }
+  end
+
+  local result = {}
+  local pat = "(.-)" .. repl .. "()"
+  local lastPos
+  for part, pos in string.gmatch(str, pat) do
+    local p = string.gsub(part, "<comma>", ",", 256)
+    table.insert(result, p)
+    lastPos = pos
+  end
+  local p = string.gsub(string.sub(str, lastPos), "<comma>", ",", 256)
+  table.insert(result, p)
+  return result
 end
 
 local function isSkipped(ind)
@@ -255,7 +275,18 @@ local function isSkipped(ind)
 end
 
 local starttime, div, mode = obj.track0, obj.track1, obj.track3
-local char = split(char_list)
+local char
+
+if div<0 then
+  div = -div
+  local temp = split(char_list)
+  char = {}
+  for i=1, #temp do
+    char[#temp-i+1] = temp[i]
+  end
+else
+   char = split(char_list)
+end
 
 function T(text, depth)
 	local table = rikky_module.textsplit(text, {"n"})
