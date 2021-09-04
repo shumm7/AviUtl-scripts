@@ -1,0 +1,38 @@
+--param:0
+local i = obj.getpoint("param")
+local index,progress = math.modf(obj.getpoint("index"))
+local st, ed = obj.getpoint(index), obj.getpoint(index+1)
+
+if MathTrack[i]==nil then
+  return st+(ed-st)*progress
+else
+  local func = loadstring("ty="..MathTrack[i].func)
+  local maxX = MathTrack[i].maxX
+  local minX = MathTrack[i].minX
+  local _maxY = MathTrack[i].maxY
+  local _minY = MathTrack[i].minY
+  local autoY = MathTrack[i].autoY
+  local maxY, minY
+  local resolution = obj.framerate * (obj.getpoint("time", index+1) - obj.getpoint("time", index))
+
+  if modeAutoYRange==0 then
+    maxY, minY = _maxY, _minY
+  elseif modeAutoYRange==1 then
+    x = minX
+    func()
+    maxY, minY = ty, ty
+
+    for i=1,resolution do
+      local tempProgress = i/resolution
+      x = (1-tempProgress)*minX + tempProgress*maxX
+      func()
+      maxY, minY = math.max(maxY, ty), math.min(minY, ty)
+    end
+  end
+
+  x = (1-progress)*minX + progress*maxX
+  func()
+  tempProgress = (ty-minY)/math.abs(maxY-minY)
+
+  return st+(ed-st)*tempProgress
+end
