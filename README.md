@@ -33,6 +33,7 @@
 - [Dust](#anchor25)
 - [Winアイコン](#anchor26)
 - [TA交互移動](#anchor27)
+- [テキスト遷移](#anchor28)
 
 
 <a id="anchor1"></a>
@@ -587,3 +588,8 @@ __dotdrawer.lua v1.0以降が必要です！__
 
 ### チェックボックス
 + `反転` 移動する場所を反転させる   
+
+
+<a id="anchor28"></a>
+## テキスト遷移
+同梱のreadmeを参照。
