@@ -123,12 +123,14 @@ obj.putpixeldata(data)
 
 @モザイク
 --track0:サイズX,0,255,16,1
---track1:サイズY,1,255,16,1
+--track1:サイズY,0,255,16,1
+
+--track3:計算方法,1,4,1,1
 
 local m = require("S_Mosaic_Module")
 local data, w, h = obj.getpixeldata()
 
-m.mosaic(data, w, h, obj.track0, obj.track1)
+m.mosaic(data, w, h, obj.track0, obj.track1, obj.track3-1)
 obj.putpixeldata(data)
 
 
@@ -143,4 +145,15 @@ local m = require("S_Mosaic_Module")
 local data, w, h = obj.getpixeldata()
 
 m.rnd_mosaic(data, w, h, obj.track0, obj.track1, obj.track2, obj.track3, seed, seed+1)
+obj.putpixeldata(data)
+
+@タイル
+--track0:サイズX,0,255,16,1
+--track1:サイズY,0,255,16,1
+--track3:計算方法,1,5,1,1
+--dialog:色1/col,color1=0x000000;色2/col,color2=0xffffff;
+local m = require("S_Mosaic_Module")
+local data, w, h = obj.getpixeldata()
+
+m.make_tile(data, w, h, obj.track0, obj.track1, color1, color2, obj.track3-1)
 obj.putpixeldata(data)
