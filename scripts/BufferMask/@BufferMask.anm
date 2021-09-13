@@ -1,0 +1,24 @@
+@元データ保存
+--track0:保存番号,1,100,1,1
+--check0:表示,1
+
+require("S_Buffermask").store(obj.track0)
+
+if not(obj.check0) then
+  obj.load("figure", "円", 0xffffff, 0)
+  obj.draw()
+end
+
+@マスク適用
+--track0:保存番号,1,100,1,1
+--track1:X,-1000,1000,0,1
+--track2:Y,-1000,1000,0,1
+--track3:モード,0,3,3,1
+--check0:マスクを反転,0
+
+local key = obj.track0
+local x = obj.track1
+local y = obj.track2
+local mode = obj.track3 - 1
+
+require("S_Buffermask").after(key, x, y, mode)
