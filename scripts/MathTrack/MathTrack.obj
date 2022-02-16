@@ -1,10 +1,11 @@
+--track0:サイズ,1,1024,300,1
 --track2:R/W,-1,1,0,1
 --track3:軌道番号,0,99,0,1
 --dialog:上書き保存/chk,modeOverwrite=1;コード[y＝],fx="x";X上限,_maxX=100;X下限,_minX=0;Y上限,_maxY=100;Y下限,_minY=0;Y範囲を自動決定/chk,modeAutoYRange=1;補助線/chk,ShowAssistLine=1;座標表示/chk,ShowPosition=1;座標表示方法[0-2],modePosition=1;
 
 local resolution = obj.totalframe
 debug_print(resolution)
-local size = 300
+local size = obj.track0
 local maxX, minX = _maxX, _minX
 local save = obj.track2
 local index = obj.track3
