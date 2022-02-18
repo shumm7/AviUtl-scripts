@@ -1,10 +1,10 @@
 --[[
-カラオケテキスト v2.4 2021/06/22
+カラオケテキスト v2.5 2022/02/19
 
 ＊テスト環境
  ・AviUtl 1.10
  ・exedit 0.93rc1
- ・textmodule v0.0.2
+ ・textmodule v1.1.1
 
 ＊導入方法
 
@@ -54,12 +54,16 @@ local progress = obj.track3
 local lnflag, notemplateflag = false, false
 require("textmodule")
 
+if textmodule.getinfo("version", 2)<13 then
+	textmodule = nil
+end
+
 
 --文字列操作関数
-local function find(text, pattern) return textmodule.find(text, pattern) end
-local function sub(text, s, e) return textmodule.sub(text, s, e) end
-local function gsub(text, pattern, repl, n) return textmodule.gsub(text, pattern, repl, n) end
-local function len(text) return textmodule.len(text) end
+local function find(text, pattern) return textmodule.string.find(text, pattern) end
+local function sub(text, s, e) return textmodule.string.sub(text, s, e) end
+local function gsub(text, pattern, repl, n) return textmodule.string.gsub(text, pattern, repl, n) end
+local function len(text) return textmodule.string.len(text) end
 
 --テンプレート読み込み
 if obj.check0 then
@@ -170,6 +174,10 @@ if debug==1 then
 	--MODULE
 	if textmodule==nil then
 		msg = msg.."[WARN]textmodule.dll is missing\n"
+	else
+		if textmodule.getinfo("version", 2)<13 then
+			msg = msg.."[WARN]textmodule.dll is outdated\n"
+		end
 	end
 
 
