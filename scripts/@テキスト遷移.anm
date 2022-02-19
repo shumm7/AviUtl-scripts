@@ -2,7 +2,7 @@
 -----------------------------------------------
 　　　　　　　　　テキスト遷移
 
-　　作者：しゅう　　　　　　バージョン：2.2
+　　作者：しゅう　　　　　　バージョン：2.3
 -----------------------------------------------
 テキスト遷移は、テキストを1文字ずつ、指定した順番で変化させることができます。
 ※動作には rikky_module と textmoduleが必要です。
@@ -52,7 +52,7 @@
  AviUtl 1.10
    exedit 0.93rc1
  rikky_module 0.1.delta
- textmodule 0.1.3
+ textmodule 1.1.1
 
 ◯ 更新履歴
  [v1.0 2021-08-26] リリース
@@ -61,6 +61,7 @@
  [v2.0 2021-08-27] 不具合修正
  [v2.1 2021-09-05] 間隔が負の数になったときの挙動を追加。変化中の文字に<comma>と入力すると、エスケープすることができる仕様を追加。
  [v2.2 2021-09-05] 不具合修正
+ [v2.3 2022-02-20] textmodule 1.1.1に対応
 ]]
 
 @単体用
@@ -138,7 +139,7 @@ local function T(text, depth)
 	for i=1,length do
 		c = table[index[i]]
 
-		if textmodule.len(c)==1 and not(isSkipped(index[i])) and c~="\n" then
+		if textmodule.string.len(c)==1 and not(isSkipped(index[i])) and c~="\n" then
 			if modeRandom==1 then
 				for j=1, #char do
 					local dest = rand(1,#char, seed,i*10+j)
@@ -312,7 +313,7 @@ function T(text, depth)
 	for i=1,length do
 		c = table[index[i]]
 
-		if textmodule.len(c)==1 and not(isSkipped(index[i])) and c~="\n" then
+		if textmodule.string.len(c)==1 and not(isSkipped(index[i])) and c~="\n" then
 			if modeRandom==1 then
 				for j=1, #char do
 					local dest = rand(1,#char, seed,i*10+j)
