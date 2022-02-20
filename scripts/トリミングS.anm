@@ -1,0 +1,51 @@
+--トリミングS by しゅう  ver1.0 2022/02/21 
+
+--track0:透明度,0,100,30
+--check0:トリミング設定の表示,1
+--dialog:トリミングの反転/chk,mode_invert=0;座標,tpos={};情報表示/chk,mode_info=0;文字サイズ,font_size=34;フォント,font_family="MS UI Gothic";
+
+require("S_Trimming_Module")
+
+local px1, py1 = tpos[1]+obj.w/2, tpos[2]+obj.h/2
+local px2, py2 = tpos[3]+obj.w/2, tpos[4]+obj.h/2
+local mode_invert = mode_invert==1
+
+if obj.check0 then
+  obj.setanchor("tpos", 2)
+  local data, w, h = obj.getpixeldata()
+
+  res, nw, nh, ppx1, ppy1, ppx2, ppy2 = S_Trimming_Module.trim(data, w, h, px1, py1, px2, py2, obj.check0, mode_invert, obj.track0)
+  if not(res) then return end
+  obj.putpixeldata(data)
+  obj.draw()
+
+  if mode_info==1 then
+    obj.setfont(font_family, font_size, 3)
+
+    obj.load("text", tostring(nw).."×"..tostring(nh)) --画像の大きさ
+    obj.draw(0,0)
+
+    obj.load("text", "("..tostring(ppx1)..", "..tostring(ppy1)..")")
+    obj.draw(ppx1-w/2, ppy1-h/2)
+
+    obj.load("text", "("..tostring(ppx2)..", "..tostring(ppy2)..")")
+    obj.draw(ppx2-w/2, ppy2-h/2)
+  end
+
+
+else
+  local data, w, h = obj.getpixeldata()
+
+  res, nw, nh, ppx1, ppy1, ppx2, ppy2 = S_Trimming_Module.trim(data, w, h, px1, py1, px2, py2, obj.check0, mode_invert, obj.track0)
+  if not(res) then return end
+  obj.putpixeldata(data)
+
+  if not(mode_invert) then
+    obj.setoption("drawtarget","tempbuffer", nw, nh)
+    obj.drawpoly(-nw/2,-nh/2,0, nw/2,-nh/2,0, nw/2,nh/2,0, -nw/2,nh/2,0, ppx1,ppy1, ppx2,ppy1, ppx2,ppy2, ppx1,ppy2)
+
+    obj.load("tempbuffer")
+  end
+
+  obj.draw()
+end
