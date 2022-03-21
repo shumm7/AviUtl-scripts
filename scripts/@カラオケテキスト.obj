@@ -1,10 +1,10 @@
 --[[
-カラオケテキスト v2.5 2022/02/19
+カラオケテキスト v2.6 2022/03/22
 
 ＊テスト環境
  ・AviUtl 1.10
  ・exedit 0.93rc1
- ・textmodule v1.1.1
+ ・textmodule v1.3.1
 
 ＊導入方法
 
@@ -32,7 +32,7 @@
 
 　Q.テンプレートが認識されません
 　A.karaoke_textフォルダの中に、xxx.luaが入っているかどうか確認してください。
-　　karaoke_textフォルダは、Newカラオケテキスト.anmと同じ場所に配置してください。
+　　karaoke_textフォルダは、@カラオケテキスト.objと同じ場所に配置してください。
 　　ダイアログからファイル名を入力しますが、このとき拡張子は不要です。
 
 　Q.文字のサイズが変わりません
@@ -54,7 +54,7 @@ local progress = obj.track3
 local lnflag, notemplateflag = false, false
 require("textmodule")
 
-if textmodule.getinfo("version", 2)<13 then
+if textmodule.getinfo("version", 2)<24 then
 	textmodule = nil
 end
 
@@ -112,7 +112,7 @@ if find(line, "\n")~=nil then
 end
 
 local exp = ""
-local start_r = "[｜|\|]"
+local start_r = "[｜|\\|]"
 if textmodule==nil then
 	exp = "(｜.-《.-》)"
 else
