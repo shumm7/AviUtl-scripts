@@ -9,11 +9,12 @@
 ---- 変数定義 ----
 -----------------
 local log = ""
-local tm = require "textmodule"
+local textmodule = require("textmodule")
+local rikky_module = require("rikky_module")
 
-local OUT_PATH = obj.getinfo("script_path").."\image\\out\\"
-local IN_PATH = obj.getinfo("script_path").."\image\\"
-local DATA_PATH = obj.getinfo("script_path").."\image\\lua\\"..lua_name..".lua"
+local OUT_PATH = obj.getinfo("script_path").."image\\out\\"
+local IN_PATH = obj.getinfo("script_path").."image\\"
+local DATA_PATH = obj.getinfo("script_path").."image\\lua\\"..lua_name..".lua"
 local ACTIVE = obj.check0
 local IN_FORMAT = obj.track0
 local OUT_FORMAT = obj.track1
@@ -25,7 +26,7 @@ local AVAILABLE_FORMAT = {{"png"}, {"jpg", "jpeg"}, {"bmp"}}
 _G["data"] = {data1, data2, data3, data4}
 
 --textmoduleのバージョン確認
-if textmodule.getinfo("version", 2)<13 then
+if textmodule.getinfo("version", 2)<24 then
 	return
 end
 
@@ -38,20 +39,16 @@ local function debug_log(msg)
 		return
 	end
 
-	log = log .. "["..tm.os.date("%F %X", tm.os.time()).."] "
+	log = log .. "["..textmodule.os.date("%F %X", textmodule.os.time()).."] "
 	log = log .. msg .. "\n"
 end
 
 --ファイルの有無
 local function exist(dir)
 	if type(dir)~="string" then
-		return false
+		return
 	end
-
-	if io.open(dir,"r")~=nil then
-		return true
-	end
-	return false
+	return textmodule.filesystem.exists(dir)
 end
 
 --ディレクトリ作成
@@ -59,12 +56,12 @@ local function mkdir(dir)
 	if type(dir)~="string" then
 		return
 	end
-	os.execute("mkdir " .. dir)
+	textmodule.filesystem.create_all(dir)
 end
 
 --画像ファイル生成
 local function generate_img_file(format, path, file_name)
-	local f = tm.string.lower(format)
+	local f = textmodule.string.lower(format)
 	if OUT_FORMAT==0 then
 		if f=="png" then
 			rikky_module.png(path..file_name.."."..format)
@@ -93,15 +90,14 @@ local function save_image(list, in_path, out_path, out_format)
 		if exist(DATA_PATH) then
 			dofile(DATA_PATH)
 		end
-
 		if fileName~="" and fileName~=nil then
 			local f = ""
-			if OUT_FORMAT==0 then
-				f = tm.string.lower(v.format)
+			if out_format==0 then
+				f = textmodule.string.lower(v.format)
 			else
-				f = FORMAT_LIST[OUT_FORMAT]
+				f = FORMAT_LIST[out_format]
 			end
-			generate_img_file(v.format, out_path, v.name)
+			generate_img_file(f, out_path, v.name)
 
 			PROCESSED_COUNT = PROCESSED_COUNT + 1
 		end
@@ -115,11 +111,11 @@ local function get_filelist(dir, format)
 	local res = {}
 
 	for i,v in pairs(temp) do
-		local temp_name = tm.string.gsub(v, dir:gsub("\\", "\\\\"), "")
-		local p = tm.string.len(temp_name) - tm.string.find(tm.string.reverse(temp_name), "(\\.)") + 1
-		local file = { full = v, name = tm.string.sub(temp_name, 1, p-1), format = tm.string.sub(temp_name, p+1) }
+		local temp_name = textmodule.string.gsub(v, dir:gsub("\\", "\\\\"), "")
+		local p = textmodule.string.len(temp_name) - textmodule.string.find(textmodule.string.reverse(temp_name), "(\\.)") + 1
+		local file = { full = v, name = textmodule.string.sub(temp_name, 1, p-1), format = textmodule.string.sub(temp_name, p+1) }
 
-		local ff = tm.string.lower(file.format)
+		local ff = textmodule.string.lower(file.format)
 		if format==0 then
 			for j=1,#AVAILABLE_FORMAT do
 				for k=1,#AVAILABLE_FORMAT[j] do
@@ -160,7 +156,7 @@ end
 
 --上書きモード
 if mode_overwrite==1 then
-	OUT_PATH = obj.getinfo("script_path").."\image\\"
+	OUT_PATH = obj.getinfo("script_path").."image\\"
 	OUT_FORMAT = IN_FORMAT
 	debug_log("上書き保存モードが有効化されています。")
 end
@@ -168,7 +164,7 @@ end
 --情報表示
 if mode_info==1 then
 	local s = dofile(DATA_PATH)
-	local str = "["..file_name..".lua]\n"
+	local str = "["..lua_name..".lua]\n"
 	str = str.."解説："..s.main.."\n\n"
 	str = str.."引数1："..s.data1.."\n"
 	str = str.."引数2："..s.data2.."\n"
@@ -193,7 +189,7 @@ if ACTIVE then
 		local folderList = rikky_module.dir(IN_PATH, "")
 
 		for j,w in pairs(folderList) do
-			local folderName = tm.string.gsub(w, IN_PATH:gsub("\\", "\\\\"), "")
+			local folderName = textmodule.string.gsub(w, IN_PATH:gsub("\\", "\\\\"), "")
 			if folderName~="lua" and folderName~="out" then
 				local T_IN_PATH = IN_PATH .. folderName .. "\\"
 				local T_OUT_PATH = OUT_PATH .. folderName .. "\\"
@@ -214,13 +210,13 @@ else
 	if IN_FORMAT==0 then
 		debug_log("現在の入力形式は 全て です。")
 	else
-		debug_log("現在の入力形式は "..tm.string.upper(FORMAT_LIST[IN_FORMAT]).." です。")
+		debug_log("現在の入力形式は "..textmodule.string.upper(FORMAT_LIST[IN_FORMAT]).." です。")
 	end
 
 	if OUT_FORMAT==0 then
 		debug_log("現在の出力形式は、自動で決定されます。")
 	else
-		debug_log("現在の出力形式は "..tm.string.upper(FORMAT_LIST[OUT_FORMAT]).." です。")
+		debug_log("現在の出力形式は "..textmodule.string.upper(FORMAT_LIST[OUT_FORMAT]).." です。")
 	end
 
 	debug_log("このスクリプトは無効化されています。")
