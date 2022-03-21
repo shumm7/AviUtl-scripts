@@ -151,7 +151,7 @@ obj.putpixeldata(data)
 --track0:サイズX,0,255,16,1
 --track1:サイズY,0,255,16,1
 --track3:計算方法,1,5,1,1
---dialog:色1/col,color1=0x000000;色2/col,color2=0xffffff;
+--dialog:色1/col,color1="0x000000";色2/col,color2=0xffffff;
 local m = require("S_Mosaic_Module")
 local data, w, h = obj.getpixeldata()
 
