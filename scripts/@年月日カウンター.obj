@@ -7,7 +7,8 @@
 
 
 require("textmodule")
-if textmodule.getinfo("version", 2)<13 then
+if textmodule.getinfo("version", 2)<24 then
+	debug_print("require: textmodule 1.3.1 or latest")
 	return
 end
 
@@ -15,11 +16,7 @@ end
 local count = 16 --置換の最大回数
 
 local function addTime(_y, _m, _d, _addition)
-	local d = {
-	 year = _y,
-	 month = _m,
-	 day = _d + _addition
-	}
+	local d = {year = _y, month = _m, day = _d + _addition}
 	local t = textmodule.os.time(d)
 	result = textmodule.os.date("*t", t)
 
@@ -46,18 +43,18 @@ _year, _month, _day, _wday = addTime(_year, _month, _day, time)
 
 
 --桁数非統一
-year = string.format("%d",_year)
-month = string.format("%d",_month)
-day = string.format("%d",_day)
+year = string.format("%d", _year)
+month = string.format("%d", _month)
+day = string.format("%d", _day)
 
 --桁数統一
-monthD = string.format("%02d",_month)
-dayD = string.format("%02d",_day)
+monthD = string.format("%02d", _month)
+dayD = string.format("%02d", _day)
 
 --年（下2桁）
-local len, year_short = string.len(year), ""
+local len, year_short = textmodule.string.len(year), ""
 if (len - 2 > 0) then
-	year_short = string.sub(string.format("%02d",_year), len - 1)
+	year_short = textmodule.string.sub(string.format("%02d",_year), len - 1)
 end
 
 --曜日
@@ -120,20 +117,20 @@ wday.WC = wday.WE:upper()
 
 --フォーマット
 str = format
-str = str:gsub("nn", string.format("%01d",time), count) --増加数
-str = str:gsub("yy", year, count) --年
-str = str:gsub("YY", year_short, count) --年（下2桁）
-str = str:gsub("mm", month, count) --月
-str = str:gsub("MM", monthD, count) --月（2桁）
-str = str:gsub("dd", day, count) --日
-str = str:gsub("DD", dayD, count) --日（2桁）
-str = str:gsub("ww", wday.ww,count) --曜日（数値）
-str = str:gsub("wj", wday.wj,count) --曜日（日曜日、月曜日、火曜日...）
-str = str:gsub("WJ", wday.WJ,count) --曜日（日、月、火...）
-str = str:gsub("we", wday.we,count) --曜日（Sunday, Monday, Tuesday...）
-str = str:gsub("WE", wday.WE,count) --曜日（Sun, Mon, Tue...）
-str = str:gsub("wc", wday.wc,count) --曜日（SUNDAY, MONDAY, TUESDAY...）
-str = str:gsub("WC", wday.WC,count) --曜日（SUN, MON, TUE...）
+str = textmodule.string.gsub(str, "nn", string.format("%01d",time), count) --増加数
+str = textmodule.string.gsub(str, "yy", year, count) --年
+str = textmodule.string.gsub(str, "YY", year_short, count) --年（下2桁）
+str = textmodule.string.gsub(str, "mm", month, count) --月
+str = textmodule.string.gsub(str, "MM", monthD, count) --月（2桁）
+str = textmodule.string.gsub(str, "dd", day, count) --日
+str = textmodule.string.gsub(str, "DD", dayD, count) --日（2桁）
+str = textmodule.string.gsub(str, "ww", wday.ww, count) --曜日（数値）
+str = textmodule.string.gsub(str, "wj", wday.wj, count) --曜日（日曜日、月曜日、火曜日...）
+str = textmodule.string.gsub(str, "WJ", wday.WJ, count) --曜日（日、月、火...）
+str = textmodule.string.gsub(str, "we", wday.we, count) --曜日（Sunday, Monday, Tuesday...）
+str = textmodule.string.gsub(str, "WE", wday.WE, count) --曜日（Sun, Mon, Tue...）
+str = textmodule.string.gsub(str, "wc", wday.wc, count) --曜日（SUNDAY, MONDAY, TUESDAY...）
+str = textmodule.string.gsub(str, "WC", wday.WC, count) --曜日（SUN, MON, TUE...）
 
 --描画
 obj.setfont(font,obj.track2,deco,col1,col2)
